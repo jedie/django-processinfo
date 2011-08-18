@@ -29,7 +29,7 @@ def get_authors():
         if line.startswith('*'):
             authors.append(line[1:].strip())
     f.close()
-    return authors
+    return ", ".join(authors)
 
 
 def get_long_description():
@@ -54,8 +54,9 @@ def get_long_description():
 
         desc_html = creole2html(desc_creole)
         long_description = html2rest(desc_html)
+        long_description = long_description.encode("utf-8")
     except Exception, err:
-        if "sdist" in sys.argv or "--long-description" in sys.argv:
+        if "register" in sys.argv or "sdist" in sys.argv or "--long-description" in sys.argv:
             raise
         # Don't raise the error e.g. in ./setup install process
         long_description = "[Error: %s]\n%s" % (err, desc_creole)
