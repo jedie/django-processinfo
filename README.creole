@@ -1,0 +1,51 @@
+django-processinfo is a experimental Django application to collect information about the running server processes.
+
+What is it not:
+* track user actions
+* collect infos which are found in e.g. apache.log
+
+more info: http://www.python-forum.de/viewtopic.php?f=6&t=27168 (de)
+
+
+== usage ==
+
+add to settings.py:
+{{{
+INSTALLED_APPS = (
+	...
+	'django_processinfo',
+	...
+)
+
+MIDDLEWARE_CLASSES = (
+    'django_processinfo.middlewares.django_processinfo.ProcessInfoMiddleware',
+    ...
+)
+
+# include app settings from ./django_processinfo/app_settings.py
+from django_processinfo import app_settings as PROCESSINFO
+
+# Change settings like this:
+PROCESSINFO.ADD_INFO = True   
+}}}
+run: **syncdb** to create database tables.
+
+
+=== ProcessInfoMiddleware ===
+
+The **ProcessInfoMiddleware** can actually be inserted anywhere.
+However, it should be added far above. Thus, to capture everything.
+
+For performance enhancement, put **ProcessInfoMiddleware** after **LocalSyncCacheMiddleware**.
+Then, however, lacks some statistical values​​ (in every cache hit).
+
+
+= donation
+
+* Send [[http://www.bitcoin.org/|Bitcoins]] to [[https://blockexplorer.com/address/1J2gfYNSjpB9P7EkpTVWUY3rWQCpbfjEhX|1J2gfYNSjpB9P7EkpTVWUY3rWQCpbfjEhX]]
+
+
+== links ==
+
+| GitHub | https://github.com/jedie/django-processinfo
+| PyPi   | http://pypi.python.org/pypi/django-processinfo

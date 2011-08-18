@@ -1,0 +1,9 @@
+local_settings.py
+*.py[co]
+*.log
+*~
+*.egg-info
+/dist
+/build
+*.db3
+/.settings

@@ -13,39 +13,43 @@ from __future__ import division, absolute_import
 from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
+from django.utils.translation import ugettext_lazy as _
 
 
 class BaseModel(models.Model):
-    createtime = models.DateTimeField(auto_now_add=True, help_text="Create time")
-    lastupdatetime = models.DateTimeField(auto_now=True, help_text="Time of the last change.")
+    create_time = models.DateTimeField(auto_now_add=True, help_text="Create time")
+    lastupdate_time = models.DateTimeField(auto_now=True, help_text="Time of the last change.")
 
     db_query_count_min = models.PositiveIntegerField(
+        verbose_name=_("Min db queries"),
         help_text=_("Minimum database query count (ony available if settings.DEBUG==True)")
     )
     db_query_count_max = models.PositiveIntegerField(
+        verbose_name=_("Max db queries"),
         help_text=_("Maximum database query count (ony available if settings.DEBUG==True)")
     )
     db_query_count_average = models.PositiveIntegerField(
+        verbose_name=_("Avg db queries"),
         help_text=_("Average database query count (ony available if settings.DEBUG==True)")
     )
 
     request_count = models.PositiveIntegerField(
-        help_text=_("How many request answered since self.createtime")
+        help_text=_("How many request answered since self.create_time")
     )
 
-    response_time_min = models.PositiveIntegerField(
+    response_time_min = models.FloatField(
         help_text=_("Minimum processing time.")
     )
-    response_time_max = models.PositiveIntegerField(
+    response_time_max = models.FloatField(
         help_text=_("Maximum processing time.")
     )
-    response_time_average = models.PositiveIntegerField(
+    response_time_average = models.FloatField(
         help_text=_("Average processing time.")
     )
 
     # CPU information:
 
-    threads_count = models.PositiveSmallIntegerField()
+    threads_average = models.FloatField()
     threads_min = models.PositiveSmallIntegerField()
     threads_max = models.PositiveSmallIntegerField()
 
@@ -70,17 +74,17 @@ class BaseModel(models.Model):
 
     # RAM consumption:
 
-    vm_peak = models.PositiveIntegerField(
-        help_text=_('Peak virtual memory size (VmPeak) in Bytes')
+    vm_peak_max = models.PositiveIntegerField(
+        help_text=_('Maximum Peak virtual memory size (VmPeak) in Bytes')
     )
     memory_min = models.PositiveIntegerField(
-        help_text=_("Minimum Non-paged memory (VmRSS - Resident set size)")
+        help_text=_("Minimum Non-paged memory (VmRSS - Resident set size) in Bytes")
     )
     memory_max = models.PositiveIntegerField(
-        help_text=_("Maximum Non-paged memory (VmRSS - Resident set size)")
+        help_text=_("Maximum Non-paged memory (VmRSS - Resident set size) in Bytes")
     )
     memory_average = models.PositiveIntegerField(
-        help_text=_("Average Non-paged memory (VmRSS - Resident set size)")
+        help_text=_("Average Non-paged memory (VmRSS - Resident set size) in Bytes")
     )
 
     class Meta:
@@ -98,25 +102,23 @@ class SiteStatistics(BaseModel):
     )
 
     total_processes = models.PositiveIntegerField(
-        help_text=_("How many processes started since self.createtime")
+        help_text=_("How many processes started since self.create_time")
     )
-
     process_count_average = models.PositiveSmallIntegerField(
         help_text=_("Average number of living processes.")
     )
     process_count_max = models.PositiveSmallIntegerField(
         help_text=_("Maximum number of living processes.")
     )
-    request_count = models.PositiveIntegerField(
-        help_text=_("How many request for this site since self.createtime")
-    )
+
+    class Meta:
+        verbose_name_plural = verbose_name = "Site statistics"
+        ordering = ("-lastupdate_time",)
 
 
 class ProcessInfo(BaseModel):
     """
     Information about a running process.
-    
-    Would be automaticly cleanup by: FIXME
     """
     pid = models.SmallIntegerField(
         primary_key=True,
@@ -126,6 +128,9 @@ class ProcessInfo(BaseModel):
         help_text=_("settings.SITE_ID")
     )
 
+    class Meta:
+        verbose_name_plural = verbose_name = "Process statistics"
+        ordering = ("-lastupdate_time",)
 
 
 
