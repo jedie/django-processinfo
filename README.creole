@@ -9,6 +9,11 @@ What is it not:
 
 more info: http://www.python-forum.de/viewtopic.php?f=6&t=27168 (de)
 
+Here some screenshot how it looks like:
+* Screenshots from v0.2 (19.08.2011):
+** [[http://www.jensdiemer.de/media/screenshots/django-processinfo20110819-1.png|Screenshot 1]]
+** [[http://www.jensdiemer.de/media/screenshots/django-processinfo20110819-2.png|Screenshot 2]]
+
 
 == install ==
 
@@ -21,6 +26,11 @@ pip install django-processinfo
 
 add to settings.py:
 {{{
+import os
+
+import django_processinfo
+
+
 INSTALLED_APPS = (
 	...
 	'django_processinfo',
@@ -32,11 +42,18 @@ MIDDLEWARE_CLASSES = (
     ...
 )
 
+# Put templates above admin contrib, e.g.:
+TEMPLATE_DIRS = (
+	...
+    os.path.join(os.path.abspath(os.path.dirname(django_processinfo.__file__)), "templates/"),
+    ...
+)
+
 # include app settings from ./django_processinfo/app_settings.py
 from django_processinfo import app_settings as PROCESSINFO
 
 # Change settings like this:
-PROCESSINFO.ADD_INFO = True   
+PROCESSINFO.ADD_INFO = True
 }}}
 run: **syncdb** to create database tables.
 
