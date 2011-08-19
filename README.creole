@@ -75,7 +75,7 @@ Then, however, lacks some statistical values​​ (in every cache hit).
 ** first Version
 
 
-= donation
+== donation ==
 
 * Send [[http://www.bitcoin.org/|Bitcoins]] to [[https://blockexplorer.com/address/1J2gfYNSjpB9P7EkpTVWUY3rWQCpbfjEhX|1J2gfYNSjpB9P7EkpTVWUY3rWQCpbfjEhX]]
 
