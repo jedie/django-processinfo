@@ -1,0 +1,55 @@
+{% extends "admin/change_list.html" %}
+{% load i18n %}
+
+
+{% block content %}
+<h2>Process statistics combined for {{ site_count }} sites:</h2>
+<table>
+	<tr>
+		<th>{% trans "Memory statistics" %}</th>
+		<th>{% trans "Processes statistics" %}</th>
+		<th>{% trans "Request/Response statistics" %}</th>
+	</tr>
+	<tr>
+		<td>
+			<dl>
+				<dt>{% trans "Non-paged memory (VmRSS)" %}</dt>
+  				<dd>{{ memory_min_avg|filesizeformat }} / {{ memory_avg|filesizeformat }} / {{ memory_max_avg|filesizeformat }}</dd>
+  				
+  				<dt>{% trans "Virtual memory peak size (VmPeak)" %}</dt>
+  				<dd>{{ vm_peak_min_avg|filesizeformat }} / {{ vm_peak_avg|filesizeformat }} / {{ vm_peak_max_avg|filesizeformat }}</dd>
+			</dl>
+		</td>
+		<td>
+			<dl>
+				<dt>{% trans "Living processes" %}</dt>
+  				<dd>{{ process_count_avg|floatformat:1 }}</dd>
+  				
+				<dt>{% trans "Threads per process" %}</dt>
+  				<dd>{{ threads_min_avg|floatformat:1 }} / {{ threads_avg|floatformat:1 }} / {{ threads_max_avg|floatformat:1 }}</dd>
+  				
+  				<dt>{% trans "Maximum living processes" %}</dt>
+  				<dd>{{ process_count_max }}</dd>
+  				
+  				<dt>{% trans "Total created processes" %}</dt>
+  				<dd>{{ process_spawn }}</dd>
+			</dl>
+		</td>
+		<td>
+			<dl>
+				<dt>{% trans "Total request count" %}</dt>
+  				<dd>{{ request_count }}</dd>
+  				
+				<dt>{% trans "Response time" %}</dt>
+  				<dd>{{ response_time_min_avg }} / {{ response_time_avg }} / {{ response_time_max_avg }}</dd>
+			</dl>
+		</td>
+	</tr>
+</table>
+<ul>
+	<li>Statistics started {{ first_start_time }} (since {{ first_start_time|timesince }})</li>
+	<li>groups of three values are: <strong>mimimum / average / maximum</strong> values</li>
+	<li>{% trans "Note: All values are approximated, because statistics only collected if a request was handled completely." %}</li>
+	<li><a href="https://github.com/jedie/django-processinfo">django-processinfo v{{ version_string }}</a></li>
+</ul>
+{{ block.super }}{% endblock %}

@@ -13,66 +13,251 @@ from __future__ import division, absolute_import
 import os
 import time
 
+from django.conf import settings
 from django.contrib import admin
+from django.contrib.sites.models import Site
 from django.core.exceptions import PermissionDenied
+from django.db.models.aggregates import Min, Max, Avg, Sum
 from django.http import HttpResponseRedirect
 from django.template.defaultfilters import filesizeformat
 from django.utils.translation import ugettext as _
 
 from django_processinfo.models import SiteStatistics, ProcessInfo
 from django_processinfo.utils.timesince import timesince2
-from django.conf import settings
-
+from django_processinfo.utils.average import average
+from django_processinfo import VERSION_STRING
 
 
 class BaseModelAdmin(admin.ModelAdmin):
-    def create_time2(self, obj):
-        return timesince2(obj.create_time)
-    create_time2.short_description = _("create time")
-    create_time2.admin_order_field = "create_time"
+    def start_time2(self, obj):
+        return timesince2(obj.start_time)
+    start_time2.short_description = _("start since")
+    start_time2.admin_order_field = "start_time"
 
-    def lastupdate_time2(self, obj):
-        return timesince2(obj.lastupdate_time)
-    lastupdate_time2.short_description = _("last update")
-    lastupdate_time2.admin_order_field = "lastupdatetime"
+    def changelist_view(self, request, extra_context=None):
+        self.request = request # work-a-round for https://code.djangoproject.com/ticket/13659
 
-    def life_time(self, obj):
-        return timesince2(obj.create_time, obj.lastupdate_time)
-    life_time.short_description = _("life time")
+        site_count = 0
+        first_start_time = None
 
-    def response_time_average2(self, obj):
-        return u"%.1fms" % (obj.response_time_average * 1000)
-    response_time_average2.short_description = _("Avg response time")
-    response_time_average2.admin_order_field = "response_time_average"
+        process_count_max = 0
+        process_spawn = 0
+        process_count_avg = 0.0
 
-    def memory_average2(self, obj):
-        return filesizeformat(obj.memory_average)
-    memory_average2.short_description = _("Avg memory")
-    memory_average2.admin_order_field = "memory_average"
+        request_count = 0
 
-    def vm_peak_max2(self, obj):
-        return filesizeformat(obj.vm_peak_max)
-    vm_peak_max2.short_description = _("VmPeak")
-    vm_peak_max2.admin_order_field = "vm_peak_max"
+        memory_min_avg = None
+        memory_avg = None
+        memory_max_avg = None
+
+        vm_peak_min_avg = None
+        vm_peak_max_avg = None
+        vm_peak_avg = None
+
+        threads_min_avg = None
+        threads_max_avg = None
+        threads_avg = None
+
+        response_time_min_avg = None
+        response_time_max_avg = None
+        response_time_avg = None
+
+        self.aggregate_data = {}
+        queryset = SiteStatistics.objects.all()
+        for site_stats in queryset:
+            site_count += 1
+
+            if first_start_time is None or site_stats.start_time < first_start_time:
+                first_start_time = site_stats.start_time
+
+            site_stats.update_informations()
+            site_stats.save()
+
+            process_count_max += site_stats.process_count_max
+            process_spawn += site_stats.process_spawn
+            process_count_avg += site_stats.process_count_avg
+
+            site = site_stats.site
+
+            data = ProcessInfo.objects.filter(site=site).aggregate(
+                Avg("memory_min"),
+                Avg("memory_avg"),
+                Avg("memory_max"),
+
+                Avg("vm_peak_min"),
+                Avg("vm_peak_avg"),
+                Avg("vm_peak_max"),
+
+                Sum("request_count"),
+
+                Avg("threads_min"),
+                Avg("threads_avg"),
+                Avg("threads_max"),
+
+                Avg("response_time_min"),
+                Avg("response_time_avg"),
+                Avg("response_time_max"),
+            )
+            self.aggregate_data[site] = data
+
+            request_count += data["request_count__sum"]
+
+            memory_min_avg = average(
+                memory_min_avg, (data["memory_min__avg"]* site_stats.process_count_avg), site_count
+            )
+            memory_avg = average(
+                memory_avg, (data["memory_avg__avg"] * site_stats.process_count_avg), site_count
+            )
+            memory_max_avg = average(
+                memory_max_avg, (data["memory_max__avg"]* site_stats.process_count_avg), site_count
+            )
+
+            vm_peak_min_avg = average(
+                vm_peak_min_avg, (data["vm_peak_min__avg"]* site_stats.process_count_avg), site_count
+            )
+            vm_peak_avg = average(
+                vm_peak_avg, (data["vm_peak_avg__avg"]* site_stats.process_count_avg), site_count
+            )
+            vm_peak_max_avg = average(
+                vm_peak_max_avg, (data["vm_peak_max__avg"]* site_stats.process_count_avg), site_count
+            )
+
+            threads_min_avg = average(
+                threads_min_avg, data["threads_min__avg"], site_count
+            )
+            threads_avg = average(
+                threads_avg, data["threads_avg__avg"], site_count
+            )
+            threads_max_avg = average(
+                threads_max_avg, data["threads_max__avg"], site_count
+            )
+
+            response_time_min_avg = average(
+                response_time_min_avg, data["response_time_min__avg"], site_count
+            )
+            response_time_avg = average(
+                response_time_avg, data["response_time_avg__avg"], site_count
+            )
+            response_time_max_avg = average(
+                response_time_max_avg, data["response_time_max__avg"], site_count
+            )
+
+        extra_context = {
+            "site_count":site_count,
+
+            "first_start_time": first_start_time,
+
+            "process_spawn":process_spawn,
+            "process_count_max":process_count_max,
+            "process_count_avg": process_count_avg,
+
+            "request_count": request_count,
+
+            "memory_min_avg":memory_min_avg,
+            "memory_max_avg":memory_max_avg,
+            "memory_avg":memory_avg,
+
+            "vm_peak_min_avg": vm_peak_min_avg,
+            "vm_peak_max_avg": vm_peak_max_avg,
+            "vm_peak_avg": vm_peak_avg,
+
+            "threads_min_avg": threads_min_avg,
+            "threads_max_avg": threads_max_avg,
+            "threads_avg": threads_avg,
+
+            "response_time_min_avg": u"%.1fms" % (response_time_min_avg * 1000),
+            "response_time_max_avg": u"%.1fms" % (response_time_max_avg * 1000),
+            "response_time_avg": u"%.1fms" % (response_time_avg * 1000),
+
+            "version_string": VERSION_STRING,
+        }
+        return super(BaseModelAdmin, self).changelist_view(request, extra_context=extra_context)
 
 
 class SiteStatisticsAdmin(BaseModelAdmin):
+    def sum_memory_avg(self, obj):
+        """
+        The memory average (VmRSS) for all processes for this site
+        """
+        aggregate_data = self.aggregate_data[obj.site]
+        memory_avg = aggregate_data["memory_avg__avg"]
+        memory_sum_avg = memory_avg * obj.process_count_avg
+        return filesizeformat(memory_sum_avg)
+    sum_memory_avg.short_description = _("Avg memory")
+
+    def sum_vm_peak(self, obj):
+        aggregate_data = self.aggregate_data[obj.site]
+        vm_peak_avg = aggregate_data["vm_peak_avg__avg"]
+        sum_vm_peak = vm_peak_avg * obj.process_count_avg
+        return filesizeformat(sum_vm_peak)
+    sum_vm_peak.short_description = _("Avg VmPeak")
+
+    def response_time_avg(self, obj):
+        aggregate_data = self.aggregate_data[obj.site]
+        response_time_avg = aggregate_data["response_time_avg__avg"]
+        return u"%.1fms" % (response_time_avg * 1000)
+    response_time_avg.short_description = _("Avg response time")
+
+    def request_count(self, obj):
+        aggregate_data = self.aggregate_data[obj.site]
+        return aggregate_data["request_count__sum"]
+    request_count.short_description = _("Requests")
+
+    def process_count_avg2(self, obj):
+        return u"%.1f" % round(obj.process_count_avg, 1)
+    process_count_avg2.short_description = _("Avg process count")
+    process_count_avg2.admin_order_field = "process_count_avg"
+
     list_display = [
-        "site", "request_count", "db_query_count_average",
-        "response_time_average2",
-        "memory_average2", "vm_peak_max2",
-        "create_time2", "lastupdate_time2", "life_time"
+        "site",
+        "sum_memory_avg", "sum_vm_peak",
+        "response_time_avg", "request_count",
+        "process_spawn", "process_count_avg2", "process_count_max",
+        "start_time2",
     ]
-    if not settings.DEBUG:
-        del(list_display[list_display.index("db_query_count_average")])
+#    if not settings.DEBUG:
+#        del(list_display[list_display.index("db_query_count_avg")])
 
 admin.site.register(SiteStatistics, SiteStatisticsAdmin)
 
 
 class ProcessInfoAdmin(BaseModelAdmin):
-    def active(self, obj):
-        return os.path.exists("/proc/%i/status" % obj.pid)
-    active.boolean = True
+    def lastupdate_time2(self, obj):
+        return timesince2(obj.lastupdate_time)
+    lastupdate_time2.short_description = _("last update")
+    lastupdate_time2.admin_order_field = "lastupdate_time"
+
+    def life_time(self, obj):
+        return timesince2(obj.start_time, obj.lastupdate_time)
+    life_time.short_description = _("life time")
+
+    def response_time_avg2(self, obj):
+        return u"%.1fms" % (obj.response_time_avg * 1000)
+    response_time_avg2.short_description = _("Avg response time")
+    response_time_avg2.admin_order_field = "response_time_avg"
+
+    def memory_avg2(self, obj):
+        return filesizeformat(obj.memory_avg)
+    memory_avg2.short_description = _("Avg memory")
+    memory_avg2.admin_order_field = "memory_avg"
+
+    def vm_peak_avg2(self, obj):
+        return filesizeformat(obj.vm_peak_avg)
+    vm_peak_avg2.short_description = _("VmPeak")
+    vm_peak_avg2.admin_order_field = "vm_peak_avg"
+
+    def alive2(self, obj):
+        """ Check if current process is active and mark it if it's dead. """
+        active = os.path.exists("/proc/%i/status" % obj.pid)
+        if not active and obj.alive != False:
+            obj.alive = False
+            obj.save()
+            if settings.DEBUG:
+                self.message_user(self.request, _("Mark process with pid %r as dead.") % obj.pid)
+        return active
+    alive2.boolean = True
+    alive2.short_description = _("alive")
+    alive2.admin_order_field = "alive"
 
     def remove_dead_entries(self, request, queryset):
         """
@@ -96,17 +281,16 @@ class ProcessInfoAdmin(BaseModelAdmin):
             "count": len(ids_to_delete), "time": ((time.time() - start_time) * 1000)
         })
         return HttpResponseRedirect(request.path)
-
     remove_dead_entries.short_description = _("Remove all dead processes")
 
     list_display = [
-        "pid", "active", "site", "request_count", "db_query_count_average",
-        "response_time_average2",
-        "memory_average2", "vm_peak_max2",
-        "create_time2", "lastupdate_time2", "life_time"
+        "pid", "alive2", "site", "request_count", "exception_count", "db_query_count_avg",
+        "response_time_avg2",
+        "memory_avg2", "vm_peak_avg2",
+        "start_time2", "lastupdate_time2", "life_time"
     ]
     if not settings.DEBUG:
-        del(list_display[list_display.index("db_query_count_average")])
+        del(list_display[list_display.index("db_query_count_avg")])
     actions = [remove_dead_entries]
 
 admin.site.register(ProcessInfo, ProcessInfoAdmin)

@@ -10,15 +10,102 @@
 
 from __future__ import division, absolute_import
 
+import os
+
 from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 from django.utils.translation import ugettext_lazy as _
 
+from django_processinfo.utils.average import average
+
 
 class BaseModel(models.Model):
-    create_time = models.DateTimeField(auto_now_add=True, help_text="Create time")
+    start_time = models.DateTimeField(auto_now_add=True, help_text="Create time")
     lastupdate_time = models.DateTimeField(auto_now=True, help_text="Time of the last change.")
+
+    class Meta:
+        abstract = True
+
+
+
+class SiteStatistics(BaseModel):
+    """
+    Obverall statistics seperated per settings.SITE_ID
+    """
+    site = models.ForeignKey(Site, default=Site.objects.get_current,
+        primary_key=True,
+        help_text=_("settings.SITE_ID")
+    )
+
+    process_spawn = models.PositiveIntegerField(default=1,
+        help_text=_("Total number of processes spawend (approximated)")
+    )
+    process_count_avg = models.FloatField(default=1.0,
+        help_text=_("Average number of living processes. (approximated)")
+    )
+    process_count_max = models.PositiveSmallIntegerField(default=1,
+        help_text=_("Maximum number of living processes. (approximated)")
+    )
+
+    def update_informations(self):
+        living_pids = ProcessInfo.objects.living_processes()
+        living_process_count = len(living_pids)
+
+        self.process_count_avg = average(
+            self.process_count_avg, living_process_count, self.process_spawn
+        )
+        if self.process_count_avg < 1:
+            self.process_count_avg = 1 # Less than one is not possible ;)
+
+        self.process_count_max = max([self.process_count_max, living_process_count])
+
+    class Meta:
+        verbose_name_plural = verbose_name = "Site statistics"
+        ordering = ("-lastupdate_time",)
+
+
+class ProcessInfoManager(models.Manager):
+    def living_processes(self):
+        """
+        returns a list of pids from processes which are really alive.
+        Mark dead ProcessInfo instances.
+        """
+        proc_dirlist = os.listdir("/proc/")
+        queryset = self.all().only("pid")
+        living_pids = []
+        dead_pids = []
+        for process_info in queryset:
+            pid = process_info.pid
+            if not str(pid) in proc_dirlist:
+                dead_pids.append(pid)
+            else:
+                living_pids.append(pid)
+
+        self.all().filter(pid__in=dead_pids).update(alive=False)
+        return living_pids
+
+
+class ProcessInfo(BaseModel):
+    """
+    Information about a running process.
+    """
+    objects = ProcessInfoManager()
+
+    pid = models.SmallIntegerField(
+        primary_key=True,
+        help_text=_("process ID.")
+    )
+    alive = models.NullBooleanField(null=True, blank=True,
+        help_text=_(
+            "Is this process dead (==False)?"
+            " *Important:* alive is never==True! If alive==None: State unknown!"
+            " (We don't check the state in every request!)"
+        )
+    )
+    site = models.ForeignKey(Site, default=Site.objects.get_current,
+        help_text=_("settings.SITE_ID")
+    )
 
     db_query_count_min = models.PositiveIntegerField(
         verbose_name=_("Min db queries"),
@@ -28,13 +115,18 @@ class BaseModel(models.Model):
         verbose_name=_("Max db queries"),
         help_text=_("Maximum database query count (ony available if settings.DEBUG==True)")
     )
-    db_query_count_average = models.PositiveIntegerField(
+    db_query_count_avg = models.PositiveIntegerField(
         verbose_name=_("Avg db queries"),
         help_text=_("Average database query count (ony available if settings.DEBUG==True)")
     )
 
-    request_count = models.PositiveIntegerField(
-        help_text=_("How many request answered since self.create_time")
+    request_count = models.PositiveIntegerField(default=1,
+        verbose_name=_("Requests"),
+        help_text=_("How many request answered since self.start_time")
+    )
+    exception_count = models.PositiveIntegerField(default=0,
+        verbose_name=_("Exceptions"),
+        help_text=_("How many requests led to a exception.")
     )
 
     response_time_min = models.FloatField(
@@ -43,13 +135,15 @@ class BaseModel(models.Model):
     response_time_max = models.FloatField(
         help_text=_("Maximum processing time.")
     )
-    response_time_average = models.FloatField(
+    response_time_avg = models.FloatField(
         help_text=_("Average processing time.")
     )
 
     # CPU information:
 
-    threads_average = models.FloatField()
+    threads_avg = models.FloatField(
+        help_text=_("Average number of threads per process."),
+    )
     threads_min = models.PositiveSmallIntegerField()
     threads_max = models.PositiveSmallIntegerField()
 
@@ -74,58 +168,24 @@ class BaseModel(models.Model):
 
     # RAM consumption:
 
+    vm_peak_min = models.PositiveIntegerField(
+        help_text=_('Minimum Peak virtual memory size (VmPeak) in Bytes')
+    )
     vm_peak_max = models.PositiveIntegerField(
         help_text=_('Maximum Peak virtual memory size (VmPeak) in Bytes')
     )
+    vm_peak_avg = models.PositiveIntegerField(
+        help_text=_('Average Peak virtual memory size (VmPeak) in Bytes')
+    )
+
     memory_min = models.PositiveIntegerField(
         help_text=_("Minimum Non-paged memory (VmRSS - Resident set size) in Bytes")
     )
     memory_max = models.PositiveIntegerField(
         help_text=_("Maximum Non-paged memory (VmRSS - Resident set size) in Bytes")
     )
-    memory_average = models.PositiveIntegerField(
+    memory_avg = models.PositiveIntegerField(
         help_text=_("Average Non-paged memory (VmRSS - Resident set size) in Bytes")
-    )
-
-    class Meta:
-        abstract = True
-
-
-
-class SiteStatistics(BaseModel):
-    """
-    Obverall statistics seperated per settings.SITE_ID
-    """
-    site = models.ForeignKey(Site, default=Site.objects.get_current,
-        primary_key=True,
-        help_text=_("settings.SITE_ID")
-    )
-
-    total_processes = models.PositiveIntegerField(
-        help_text=_("How many processes started since self.create_time")
-    )
-    process_count_average = models.PositiveSmallIntegerField(
-        help_text=_("Average number of living processes.")
-    )
-    process_count_max = models.PositiveSmallIntegerField(
-        help_text=_("Maximum number of living processes.")
-    )
-
-    class Meta:
-        verbose_name_plural = verbose_name = "Site statistics"
-        ordering = ("-lastupdate_time",)
-
-
-class ProcessInfo(BaseModel):
-    """
-    Information about a running process.
-    """
-    pid = models.SmallIntegerField(
-        primary_key=True,
-        help_text=_("process ID.")
-    )
-    site = models.ForeignKey(Site, default=Site.objects.get_current,
-        help_text=_("settings.SITE_ID")
     )
 
     class Meta:
