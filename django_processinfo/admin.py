@@ -198,32 +198,32 @@ class SiteStatisticsAdmin(BaseModelAdmin):
         The memory average (VmRSS) for all processes for this site
         """
         aggregate_data = self.aggregate_data[obj.site]
-        memory_avg = aggregate_data["memory_avg__avg"]
+        memory_avg = aggregate_data["memory_avg__avg"] or 0
         memory_sum_avg = memory_avg * obj.process_count_avg
         return filesizeformat(memory_sum_avg)
     sum_memory_avg.short_description = _("Avg VmRSS")
 
     def sum_vm_peak(self, obj):
         aggregate_data = self.aggregate_data[obj.site]
-        vm_peak_avg = aggregate_data["vm_peak_avg__avg"]
+        vm_peak_avg = aggregate_data["vm_peak_avg__avg"] or 0
         sum_vm_peak = vm_peak_avg * obj.process_count_avg
         return filesizeformat(sum_vm_peak)
     sum_vm_peak.short_description = _("Avg VmPeak")
 
     def response_time_avg(self, obj):
         aggregate_data = self.aggregate_data[obj.site]
-        response_time_avg = aggregate_data["response_time_avg__avg"]
+        response_time_avg = aggregate_data["response_time_avg__avg"] or 0
         return u"%.1fms" % (response_time_avg * 1000)
     response_time_avg.short_description = _("Avg response time")
 
     def request_count(self, obj):
         aggregate_data = self.aggregate_data[obj.site]
-        return aggregate_data["request_count__sum"]
+        return aggregate_data["request_count__sum"] or 1
     request_count.short_description = _("Requests")
 
     def exception_count(self, obj):
         aggregate_data = self.aggregate_data[obj.site]
-        return aggregate_data["exception_count__sum"]
+        return aggregate_data["exception_count__sum"] or 0
     exception_count.short_description = _("Exceptions")
 
     def process_count_avg2(self, obj):
