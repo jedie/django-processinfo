@@ -49,13 +49,13 @@ class BaseModelAdmin(admin.ModelAdmin):
         request_count = 0
         exception_count = 0
 
-        memory_min_avg = None
-        memory_avg = None
-        memory_max_avg = None
+        memory_min_avg = 0.0
+        memory_avg = 0.0
+        memory_max_avg = 0.0
 
-        vm_peak_min_avg = None
-        vm_peak_max_avg = None
-        vm_peak_avg = None
+        vm_peak_min_avg = 0.0
+        vm_peak_max_avg = 0.0
+        vm_peak_avg = 0.0
 
         threads_min_avg = None
         threads_max_avg = None
@@ -107,25 +107,13 @@ class BaseModelAdmin(admin.ModelAdmin):
             request_count += data["request_count__sum"]
             exception_count += data["exception_count__sum"]
 
-            memory_min_avg = average(
-                memory_min_avg, (data["memory_min__avg"]* site_stats.process_count_avg), site_count
-            )
-            memory_avg = average(
-                memory_avg, (data["memory_avg__avg"] * site_stats.process_count_avg), site_count
-            )
-            memory_max_avg = average(
-                memory_max_avg, (data["memory_max__avg"]* site_stats.process_count_avg), site_count
-            )
+            memory_min_avg += data["memory_min__avg"]
+            memory_avg += data["memory_avg__avg"]
+            memory_max_avg += data["memory_max__avg"]
 
-            vm_peak_min_avg = average(
-                vm_peak_min_avg, (data["vm_peak_min__avg"]* site_stats.process_count_avg), site_count
-            )
-            vm_peak_avg = average(
-                vm_peak_avg, (data["vm_peak_avg__avg"]* site_stats.process_count_avg), site_count
-            )
-            vm_peak_max_avg = average(
-                vm_peak_max_avg, (data["vm_peak_max__avg"]* site_stats.process_count_avg), site_count
-            )
+            vm_peak_min_avg += data["vm_peak_min__avg"]
+            vm_peak_avg += data["vm_peak_avg__avg"]
+            vm_peak_max_avg += data["vm_peak_max__avg"]
 
             threads_min_avg = average(
                 threads_min_avg, data["threads_min__avg"], site_count
@@ -231,7 +219,7 @@ class SiteStatisticsAdmin(BaseModelAdmin):
     def exception_count(self, obj):
         aggregate_data = self.aggregate_data[obj.site]
         return aggregate_data["exception_count__sum"]
-    request_count.short_description = _("Exceptions")
+    exception_count.short_description = _("Exceptions")
 
     def process_count_avg2(self, obj):
         return u"%.1f" % round(obj.process_count_avg, 1)
