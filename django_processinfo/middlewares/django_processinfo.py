@@ -29,10 +29,8 @@ overall_start_time = time.time()
 
 class ProcessInfoMiddleware(object):
     def __init__(self):
-        print "*** ProcessInfoMiddleware init ***"
         self.url_filter = []
         for url_name, recusive in settings.PROCESSINFO.URL_FILTER:
-            print url_name, recusive
             if isinstance(url_name, dict):
                 kwargs = url_name
             else:
@@ -45,10 +43,8 @@ class ProcessInfoMiddleware(object):
                 evalue = etype("Wrong django-processinfo URL_FILTER %r: %s" % (url_name, evalue))
                 raise etype, evalue, etb
 
-            print url
             self.url_filter.append((url, recusive))
         self.url_filter = tuple(self.url_filter)
-
 
     def _insert_statistics(self, exception=False):
         """ collect statistic information """
