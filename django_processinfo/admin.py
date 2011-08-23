@@ -15,9 +15,8 @@ import time
 
 from django.conf import settings
 from django.contrib import admin
-from django.contrib.sites.models import Site
 from django.core.exceptions import PermissionDenied
-from django.db.models.aggregates import Min, Max, Avg, Sum
+from django.db.models.aggregates import Avg, Sum
 from django.http import HttpResponseRedirect
 from django.template.defaultfilters import filesizeformat
 from django.utils.translation import ugettext as _
@@ -110,14 +109,14 @@ class BaseModelAdmin(admin.ModelAdmin):
             exception_count += data["exception_count__sum"] or 0
 
             # VmRSS
-            memory_min_avg += data["memory_min__avg"] or 0
-            memory_avg += data["memory_avg__avg"] or 0
-            memory_max_avg += data["memory_max__avg"] or 0
+            memory_min_avg += (data["memory_min__avg"]or 0) * process_count_avg
+            memory_avg += (data["memory_avg__avg"] or 0) * process_count_avg
+            memory_max_avg += (data["memory_max__avg"] or 0) * process_count_avg
 
             # VmPeak
-            vm_peak_min_avg += data["vm_peak_min__avg"] or 0
-            vm_peak_avg += data["vm_peak_avg__avg"] or 0
-            vm_peak_max_avg += data["vm_peak_max__avg"] or 0
+            vm_peak_min_avg += (data["vm_peak_min__avg"] or 0) * process_count_avg
+            vm_peak_avg += (data["vm_peak_avg__avg"] or 0) * process_count_avg
+            vm_peak_max_avg += (data["vm_peak_max__avg"] or 0) * process_count_avg
 
             threads_min_avg = average(
                 threads_min_avg, data["threads_min__avg"] or 1, site_count
