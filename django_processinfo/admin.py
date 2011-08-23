@@ -106,37 +106,37 @@ class BaseModelAdmin(admin.ModelAdmin):
             )
             self.aggregate_data[site] = data
 
-            request_count += data["request_count__sum"]
-            exception_count += data["exception_count__sum"]
+            request_count += data["request_count__sum"] or 1
+            exception_count += data["exception_count__sum"] or 0
 
             # VmRSS
-            memory_min_avg += data["memory_min__avg"]
-            memory_avg += data["memory_avg__avg"]
-            memory_max_avg += data["memory_max__avg"]
+            memory_min_avg += data["memory_min__avg"] or 0
+            memory_avg += data["memory_avg__avg"] or 0
+            memory_max_avg += data["memory_max__avg"] or 0
 
             # VmPeak
-            vm_peak_min_avg += data["vm_peak_min__avg"]
-            vm_peak_avg += data["vm_peak_avg__avg"]
-            vm_peak_max_avg += data["vm_peak_max__avg"]
+            vm_peak_min_avg += data["vm_peak_min__avg"] or 0
+            vm_peak_avg += data["vm_peak_avg__avg"] or 0
+            vm_peak_max_avg += data["vm_peak_max__avg"] or 0
 
             threads_min_avg = average(
-                threads_min_avg, data["threads_min__avg"], site_count
+                threads_min_avg, data["threads_min__avg"] or 1, site_count
             )
             threads_avg = average(
-                threads_avg, data["threads_avg__avg"], site_count
+                threads_avg, data["threads_avg__avg"] or 1, site_count
             )
             threads_max_avg = average(
-                threads_max_avg, data["threads_max__avg"], site_count
+                threads_max_avg, data["threads_max__avg"] or 1, site_count
             )
 
             response_time_min_avg = average(
-                response_time_min_avg, data["response_time_min__avg"], site_count
+                response_time_min_avg, data["response_time_min__avg"] or 0, site_count
             )
             response_time_avg = average(
-                response_time_avg, data["response_time_avg__avg"], site_count
+                response_time_avg, data["response_time_avg__avg"] or 0, site_count
             )
             response_time_max_avg = average(
-                response_time_max_avg, data["response_time_max__avg"], site_count
+                response_time_max_avg, data["response_time_max__avg"] or 0, site_count
             )
 
         # get information from /proc/meminfo    
