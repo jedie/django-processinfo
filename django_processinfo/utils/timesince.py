@@ -10,13 +10,16 @@
 
 import datetime
 
-from django.utils.tzinfo import LocalTimezone
+from django.template.loader import render_to_string
 from django.utils.timesince import timesince
+from django.utils.tzinfo import LocalTimezone
 
 
 def timesince2(d, now=None):
     """
-    Same as django.utils.timesince.timesince but display "X Sec" and "X ms", too.
+    Simmilar to django.utils.timesince.timesince, but:
+        * display "X Sec" and "X ms", too
+        * generates html code with both information
     """
     result = timesince(d, now)
     if result.startswith("0 "):
@@ -36,4 +39,5 @@ def timesince2(d, now=None):
         else:
             result = u"%.2f Sec" % diff_float
 
-    return result
+    context = {"d": d, "timesince": result}
+    return render_to_string("django_processinfo/timesince.html", context)

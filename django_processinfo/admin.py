@@ -33,6 +33,7 @@ class BaseModelAdmin(admin.ModelAdmin):
         return timesince2(obj.start_time)
     start_time2.short_description = _("start since")
     start_time2.admin_order_field = "start_time"
+    start_time2.allow_tags = True
 
     def changelist_view(self, request, extra_context=None):
         self.request = request # work-a-round for https://code.djangoproject.com/ticket/13659
@@ -226,10 +227,12 @@ class ProcessInfoAdmin(BaseModelAdmin):
         return timesince2(obj.lastupdate_time)
     lastupdate_time2.short_description = _("last update")
     lastupdate_time2.admin_order_field = "lastupdate_time"
+    lastupdate_time2.allow_tags = True
 
     def life_time(self, obj):
         return timesince2(obj.start_time, obj.lastupdate_time)
     life_time.short_description = _("life time")
+    life_time.allow_tags = True
 
     def response_time_avg2(self, obj):
         return u"%.1fms" % (obj.response_time_avg * 1000)
