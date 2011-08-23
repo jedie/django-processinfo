@@ -135,6 +135,7 @@ class BaseModelAdmin(admin.ModelAdmin):
                 response_time_max_avg, data["response_time_max__avg"], site_count
             )
 
+        # get information from /proc/meminfo    
         meminfo_dict = dict(meminfo())
         swap_used = meminfo_dict["SwapTotal"] - meminfo_dict["SwapFree"]
         mem_free = meminfo_dict["MemFree"] + meminfo_dict["Buffers"] + meminfo_dict["Cached"]
