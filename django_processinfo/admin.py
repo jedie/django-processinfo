@@ -26,6 +26,7 @@ from django_processinfo.models import SiteStatistics, ProcessInfo
 from django_processinfo.utils.timesince import timesince2
 from django_processinfo.utils.average import average
 from django_processinfo import VERSION_STRING
+from django_processinfo.utils.proc_info import meminfo
 
 
 class BaseModelAdmin(admin.ModelAdmin):
@@ -46,6 +47,7 @@ class BaseModelAdmin(admin.ModelAdmin):
         process_count_avg = 0.0
 
         request_count = 0
+        exception_count = 0
 
         memory_min_avg = None
         memory_avg = None
@@ -90,6 +92,7 @@ class BaseModelAdmin(admin.ModelAdmin):
                 Avg("vm_peak_max"),
 
                 Sum("request_count"),
+                Sum("exception_count"),
 
                 Avg("threads_min"),
                 Avg("threads_avg"),
@@ -102,6 +105,7 @@ class BaseModelAdmin(admin.ModelAdmin):
             self.aggregate_data[site] = data
 
             request_count += data["request_count__sum"]
+            exception_count += data["exception_count__sum"]
 
             memory_min_avg = average(
                 memory_min_avg, (data["memory_min__avg"]* site_stats.process_count_avg), site_count
@@ -143,6 +147,11 @@ class BaseModelAdmin(admin.ModelAdmin):
                 response_time_max_avg, data["response_time_max__avg"], site_count
             )
 
+        meminfo_dict = dict(meminfo())
+        swap_used = meminfo_dict["SwapTotal"] - meminfo_dict["SwapFree"]
+        mem_free = meminfo_dict["MemFree"] + meminfo_dict["Buffers"] + meminfo_dict["Cached"]
+        mem_used = meminfo_dict["MemTotal"] - mem_free
+
         extra_context = {
             "site_count":site_count,
 
@@ -153,6 +162,7 @@ class BaseModelAdmin(admin.ModelAdmin):
             "process_count_avg": process_count_avg,
 
             "request_count": request_count,
+            "exception_count": exception_count,
 
             "memory_min_avg":memory_min_avg,
             "memory_max_avg":memory_max_avg,
@@ -171,7 +181,23 @@ class BaseModelAdmin(admin.ModelAdmin):
             "response_time_avg": u"%.1fms" % (response_time_avg * 1000),
 
             "version_string": VERSION_STRING,
+
+            "mem_used": mem_used,
+            "mem_perc": float(mem_used) / meminfo_dict["MemTotal"] * 100,
+            "mem_total": meminfo_dict["MemTotal"],
+
+            "swap_used": swap_used,
+            "swap_perc": float(swap_used) / meminfo_dict["SwapTotal"] * 100,
+            "swap_total": meminfo_dict["SwapTotal"],
         }
+        print extra_context
+
+        try:
+            extra_context["loadavg"] = os.getloadavg()
+        except OSError, err:
+            extra_context["loadavg_err"] = "[Error: %s]" % err
+
+
         return super(BaseModelAdmin, self).changelist_view(request, extra_context=extra_context)
 
 
@@ -204,6 +230,11 @@ class SiteStatisticsAdmin(BaseModelAdmin):
         return aggregate_data["request_count__sum"]
     request_count.short_description = _("Requests")
 
+    def exception_count(self, obj):
+        aggregate_data = self.aggregate_data[obj.site]
+        return aggregate_data["exception_count__sum"]
+    request_count.short_description = _("Exceptions")
+
     def process_count_avg2(self, obj):
         return u"%.1f" % round(obj.process_count_avg, 1)
     process_count_avg2.short_description = _("Avg process count")
@@ -212,7 +243,7 @@ class SiteStatisticsAdmin(BaseModelAdmin):
     list_display = [
         "site",
         "sum_memory_avg", "sum_vm_peak",
-        "response_time_avg", "request_count",
+        "response_time_avg", "request_count", "exception_count",
         "process_spawn", "process_count_avg2", "process_count_max",
         "start_time2",
     ]

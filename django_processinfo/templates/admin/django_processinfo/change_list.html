@@ -28,6 +28,36 @@
 {% endif %}
 
 {% block content %}
+<h2>System information</h2>
+<table>
+    <tr>
+        <td>
+            <dl>
+                <dt>{% trans "Memory usage" %}</dt>
+                <dd>{{ mem_used|filesizeformat }} ({{ mem_perc|floatformat:2 }}%) {% trans "from" %} {{ mem_total|filesizeformat }}</dd>
+            </dl>
+        </td>
+        <td>
+            <dl>
+                <dt>{% trans "Swap" %}</dt>
+                <dd>{{ swap_used|filesizeformat }} ({{ swap_perc|floatformat:2 }}%) {% trans "from" %} {{ swap_total|filesizeformat }}</dd>
+            </dl>
+        </td>
+        <td>
+            <dl>
+                <dt>{% trans "load average (1, 5 &amp; 15 min)" %}</dt>
+                <dd>
+                    {% if loadavg_err %}
+                        {{ loadavg_err }}
+                    {% else %}
+                        {{ loadavg.0 }} / {{ loadavg.1 }} / {{ loadavg.2 }}
+                    {% endif %}
+                </dd>
+            </dl>
+        </td>
+    </tr>
+</table>
+
 <h2>Process statistics combined for {{ site_count }} sites:</h2>
 <table>
 	<tr>
@@ -62,6 +92,9 @@
 				<dt>{% trans "Total request count" %}</dt>
   				<dd>{{ request_count }}</dd>
   				
+				<dt>{% trans "Total exceptions count" %}</dt>
+  				<dd>{{ exception_count }}</dd>
+  				
 				<dt>{% trans "Response time" %}</dt>
   				<dd>{{ response_time_min_avg }} / {{ response_time_avg }} / {{ response_time_max_avg }}</dd>
 			</dl>
@@ -74,4 +107,5 @@
 	<li>{% trans "Note: All values are approximated, because statistics only collected if a request was handled completely." %}</li>
 	<li><a href="https://github.com/jedie/django-processinfo">django-processinfo v{{ version_string }}</a></li>
 </ul>
+<hr />
 {{ block.super }}{% endblock %}
