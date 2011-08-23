@@ -3,27 +3,7 @@
 
 {% if not is_popup %}
   {% block breadcrumbs %}
-    <div class="breadcrumbs">
-      <a href="../../">
-        {% trans "Home" %}
-      </a>
-       &rsaquo;
-       <a href="../">
-         {{ app_label|capfirst }}
-      </a>
-      &rsaquo;
-      [
-      {% if cl.opts.verbose_name == "Site statistics" %}
-			<strong>Site statistics</strong>
-			|
-			<a href="../processinfo/" style="text-decoration:underline">Process statistics</a>
-	  {% else %}
-			<a href="../sitestatistics/" style="text-decoration:underline">Site statistics</a>
-			|
-			<strong>Process statistics</strong>
-      {% endif %}
-      ]
-    </div>
+    {% include "django_processinfo/includes/admin_breadcrumbs.html" %}
   {% endblock %}
 {% endif %}
 
