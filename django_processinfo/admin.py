@@ -83,10 +83,12 @@ class BaseModelAdmin(admin.ModelAdmin):
             site = site_stats.site
 
             data = ProcessInfo.objects.filter(site=site).aggregate(
+                # VmRSS
                 Avg("memory_min"),
                 Avg("memory_avg"),
                 Avg("memory_max"),
 
+                # VmPeak
                 Avg("vm_peak_min"),
                 Avg("vm_peak_avg"),
                 Avg("vm_peak_max"),
@@ -107,10 +109,12 @@ class BaseModelAdmin(admin.ModelAdmin):
             request_count += data["request_count__sum"]
             exception_count += data["exception_count__sum"]
 
+            # VmRSS
             memory_min_avg += data["memory_min__avg"]
             memory_avg += data["memory_avg__avg"]
             memory_max_avg += data["memory_max__avg"]
 
+            # VmPeak
             vm_peak_min_avg += data["vm_peak_min__avg"]
             vm_peak_avg += data["vm_peak_avg__avg"]
             vm_peak_max_avg += data["vm_peak_max__avg"]
@@ -197,7 +201,7 @@ class SiteStatisticsAdmin(BaseModelAdmin):
         memory_avg = aggregate_data["memory_avg__avg"]
         memory_sum_avg = memory_avg * obj.process_count_avg
         return filesizeformat(memory_sum_avg)
-    sum_memory_avg.short_description = _("Avg memory")
+    sum_memory_avg.short_description = _("Avg VmRSS")
 
     def sum_vm_peak(self, obj):
         aggregate_data = self.aggregate_data[obj.site]
@@ -259,7 +263,7 @@ class ProcessInfoAdmin(BaseModelAdmin):
 
     def memory_avg2(self, obj):
         return filesizeformat(obj.memory_avg)
-    memory_avg2.short_description = _("Avg memory")
+    memory_avg2.short_description = _("Avg VmRSS")
     memory_avg2.admin_order_field = "memory_avg"
 
     def vm_peak_avg2(self, obj):
