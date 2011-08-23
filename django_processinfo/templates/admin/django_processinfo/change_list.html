@@ -1,6 +1,31 @@
 {% extends "admin/change_list.html" %}
 {% load i18n %}
 
+{% if not is_popup %}
+  {% block breadcrumbs %}
+    <div class="breadcrumbs">
+      <a href="../../">
+        {% trans "Home" %}
+      </a>
+       &rsaquo;
+       <a href="../">
+         {{ app_label|capfirst }}
+      </a>
+      &rsaquo;
+      [
+      {% if cl.opts.verbose_name == "Site statistics" %}
+			<strong>Site statistics</strong>
+			|
+			<a href="../processinfo/" style="text-decoration:underline">Process statistics</a>
+	  {% else %}
+			<a href="../sitestatistics/" style="text-decoration:underline">Site statistics</a>
+			|
+			<strong>Process statistics</strong>
+      {% endif %}
+      ]
+    </div>
+  {% endblock %}
+{% endif %}
 
 {% block content %}
 <h2>Process statistics combined for {{ site_count }} sites:</h2>
