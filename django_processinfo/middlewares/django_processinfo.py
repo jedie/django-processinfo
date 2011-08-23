@@ -144,7 +144,6 @@ class ProcessInfoMiddleware(object):
             site=Site.objects.get_current()
         )
         if not created and process_created:
-            site_stats.process_spawn += 1
             site_stats.update_informations()
             site_stats.save()
 
