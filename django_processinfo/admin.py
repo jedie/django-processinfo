@@ -190,13 +190,11 @@ class BaseModelAdmin(admin.ModelAdmin):
             "swap_perc": float(swap_used) / meminfo_dict["SwapTotal"] * 100,
             "swap_total": meminfo_dict["SwapTotal"],
         }
-        print extra_context
 
         try:
             extra_context["loadavg"] = os.getloadavg()
         except OSError, err:
             extra_context["loadavg_err"] = "[Error: %s]" % err
-
 
         return super(BaseModelAdmin, self).changelist_view(request, extra_context=extra_context)
 
