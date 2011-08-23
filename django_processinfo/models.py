@@ -13,7 +13,6 @@ from __future__ import division, absolute_import
 import os
 
 from django.db import models
-from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 from django.utils.translation import ugettext_lazy as _
 
@@ -49,7 +48,7 @@ class SiteStatistics(BaseModel):
     )
 
     def update_informations(self):
-        living_pids = ProcessInfo.objects.living_processes()
+        living_pids = ProcessInfo.objects.living_processes(site=self.site)
         living_process_count = len(living_pids)
 
         self.process_count_avg = average(
@@ -66,13 +65,19 @@ class SiteStatistics(BaseModel):
 
 
 class ProcessInfoManager(models.Manager):
-    def living_processes(self):
+    def living_processes(self, site=None):
         """
         returns a list of pids from processes which are really alive.
         Mark dead ProcessInfo instances.
         """
         proc_dirlist = os.listdir("/proc/")
-        queryset = self.all().only("pid")
+
+        if site:
+            queryset = self.filter(site=site)
+        else:
+            queryset = self.all()
+
+        queryset = queryset.only("pid")
         living_pids = []
         dead_pids = []
         for process_info in queryset:
@@ -82,7 +87,7 @@ class ProcessInfoManager(models.Manager):
             else:
                 living_pids.append(pid)
 
-        self.all().filter(pid__in=dead_pids).update(alive=False)
+        queryset.filter(pid__in=dead_pids).update(alive=False)
         return living_pids
 
 

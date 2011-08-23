@@ -140,10 +140,11 @@ class ProcessInfoMiddleware(object):
             process_info.save()
 
 
+        current_site = Site.objects.get_current()
         site_stats, created = SiteStatistics.objects.get_or_create(
-            site=Site.objects.get_current()
+            site=current_site
         )
-        if not created and process_created:
+        if created or process_created:
             site_stats.update_informations()
             site_stats.save()
 
