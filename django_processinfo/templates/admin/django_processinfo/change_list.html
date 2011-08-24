@@ -57,8 +57,11 @@
 		</td>
 		<td>
 			<dl>
-				<dt>{% trans "Living processes (avg/max)" %}</dt>
-  				<dd>{{ process_count_avg|floatformat:1 }} / {{ process_count_max }}</dd>
+				<dt>{% trans "Living processes" %}</dt>
+  				<dd>- / {{ process_count_avg|floatformat:1 }} / {{ process_count_max }}</dd>
+  				
+				<dt>{% trans "Processes lifetime" %}</dt>
+  				<dd>{{ life_time_min }} / {{ life_time_avg }} / {{ life_time_max }}</dd>
   				
 				<dt>{% trans "Threads per process" %}</dt>
   				<dd>{{ threads_min_avg|floatformat:1 }} / {{ threads_avg|floatformat:1 }} / {{ threads_max_avg|floatformat:1 }}</dd>

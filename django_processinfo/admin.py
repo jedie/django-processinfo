@@ -22,10 +22,11 @@ from django.template.defaultfilters import filesizeformat
 from django.utils.translation import ugettext as _
 
 from django_processinfo.models import SiteStatistics, ProcessInfo
-from django_processinfo.utils.timesince import timesince2
 from django_processinfo.utils.average import average
 from django_processinfo import VERSION_STRING
 from django_processinfo.utils.proc_info import meminfo
+from django_processinfo.utils.human_time import timesince2, human_duration, \
+    datetime2float
 
 
 class BaseModelAdmin(admin.ModelAdmin):
@@ -45,6 +46,7 @@ class BaseModelAdmin(admin.ModelAdmin):
         process_spawn = 0
         process_count_avg = 0.0
 
+        life_time_values = []
         request_count = 0
         exception_count = 0
 
@@ -80,6 +82,11 @@ class BaseModelAdmin(admin.ModelAdmin):
             process_count_avg += site_stats.process_count_avg
 
             site = site_stats.site
+
+            processes = ProcessInfo.objects.filter(site=site).only("start_time", "lastupdate_time")
+            for process in processes:
+                life_time = process.lastupdate_time - process.start_time
+                life_time_values.append(life_time)
 
             data = ProcessInfo.objects.filter(site=site).aggregate(
                 # VmRSS
@@ -138,6 +145,13 @@ class BaseModelAdmin(admin.ModelAdmin):
                 response_time_max_avg, data["response_time_max__avg"] or 0, site_count
             )
 
+        # Calculate the process life times
+        # timedelta.total_seconds() is new in Python 2.7
+        life_time_values = [datetime2float(td) for td in life_time_values]
+        life_time_min = min(life_time_values)
+        life_time_max = max(life_time_values)
+        life_time_avg = sum(life_time_values) / len(life_time_values)
+
         # get information from /proc/meminfo    
         meminfo_dict = dict(meminfo())
         swap_used = meminfo_dict["SwapTotal"] - meminfo_dict["SwapFree"]
@@ -173,6 +187,10 @@ class BaseModelAdmin(admin.ModelAdmin):
             "response_time_avg": u"%.1fms" % (response_time_avg * 1000),
 
             "version_string": VERSION_STRING,
+
+            "life_time_min": human_duration(life_time_min),
+            "life_time_max": human_duration(life_time_max),
+            "life_time_avg": human_duration(life_time_avg),
 
             "mem_used": mem_used,
             "mem_perc": float(mem_used) / meminfo_dict["MemTotal"] * 100,
