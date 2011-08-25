@@ -11,6 +11,9 @@
 """
 
 
+from __future__ import with_statement
+
+
 def process_information(pid=None):
     """
     Get process information.
