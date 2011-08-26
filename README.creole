@@ -89,14 +89,17 @@ from django_processinfo import app_settings as PROCESSINFO
 PROCESSINFO.ADD_INFO = True
 }}}
 
-
 === ProcessInfoMiddleware ===
 
 The **ProcessInfoMiddleware** can actually be inserted anywhere.
 However, it should be added far above. Thus, to capture everything.
 
-For performance enhancement, put **ProcessInfoMiddleware** after **LocalSyncCacheMiddleware**.
-Then, however, lacks some statistical values​​ (in every cache hit).
+For performance enhancement, you can put **ProcessInfoMiddleware** after **LocalSyncCacheMiddleware**.
+But then, however, lacks statistical values on every cache hit!
+
+=== app settings ===
+
+Available django-processinfo settings can you found in [[https://github.com/jedie/django-processinfo/blob/master/django_processinfo/app_settings.py|./django_processinfo/app_settings.py]]
 
 
 == history ==
