@@ -45,14 +45,17 @@ Here [[http://www.pylucid.org/permalink/340/pylucid-screenshots/django-processin
 
 == install ==
 
+1. install it e.g.:
 {{{
 pip install django-processinfo
 }}}
 
+2. add settings (see below)
+3. create tables (run syncdb)
 
-== usage ==
+== settings ==
 
-add to settings.py:
+add this to your settings.py:
 {{{
 import os
 
@@ -83,7 +86,6 @@ from django_processinfo import app_settings as PROCESSINFO
 # Change settings like this:
 PROCESSINFO.ADD_INFO = True
 }}}
-run: **syncdb** to create database tables.
 
 
 === ProcessInfoMiddleware ===
