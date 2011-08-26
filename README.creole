@@ -1,6 +1,6 @@
-django-processinfo is a experimental Django application to collect information about the running server processes.
+django-processinfo is a reuseable Django application for collecing information about the running server processes.
 
-This only works, if **/proc/$$/status** exists. So only on only on unix/linux like platforms.
+This only works, if **/proc/$$/status** exists. So only on unix/linux like platforms, yet.
 
 What is it not:
 * track user actions
@@ -9,10 +9,9 @@ What is it not:
 
 more info: http://www.python-forum.de/viewtopic.php?f=6&t=27168 (de)
 
-Here some screenshot how it looks like:
-* Screenshots from v0.2 (19.08.2011):
-** [[http://www.jensdiemer.de/media/screenshots/django-processinfo20110819-1.png|Screenshot 1]]
-** [[http://www.jensdiemer.de/media/screenshots/django-processinfo20110819-2.png|Screenshot 2]]
+Here some screenshots (from v0.2 - 19.08.2011) how it looks like:
+** [[http://www.pylucid.org/media/screenshots_PyLucid/django-processinfo/django-processinfo20110819-1.png|Screenshot 1]]
+** [[http://www.pylucid.org/media/screenshots_PyLucid/django-processinfo/django-processinfo20110819-2.png|Screenshot 2]]
 
 
 == install ==
@@ -83,7 +82,7 @@ Then, however, lacks some statistical values​​ (in every cache hit).
 
 == donation ==
 
-* Send [[http://www.bitcoin.org/|Bitcoins]] to [[https://blockexplorer.com/address/1J2gfYNSjpB9P7EkpTVWUY3rWQCpbfjEhX|1J2gfYNSjpB9P7EkpTVWUY3rWQCpbfjEhX]]
+If you like it, send some [[http://www.bitcoin.org/|Bitcoins]] to [[https://blockexplorer.com/address/1J2gfYNSjpB9P7EkpTVWUY3rWQCpbfjEhX|1J2gfYNSjpB9P7EkpTVWUY3rWQCpbfjEhX]] ;)
 
 
 == links ==
