@@ -19,6 +19,18 @@ from django_processinfo import VERSION_STRING
 PACKAGE_ROOT = os.path.dirname(os.path.abspath(__file__))
 
 
+try:
+    from creole.setup_utils import GetLongDescription
+except ImportError:
+    if "register" in sys.argv or "sdist" in sys.argv or "--long-description" in sys.argv:
+        etype, evalue, etb = sys.exc_info()
+        evalue = etype("%s - Please install python-creole >= v0.8 -  e.g.: pip install python-creole" % evalue)
+        raise etype, evalue, etb
+    long_description = None
+else:
+    long_description = GetLongDescription(PACKAGE_ROOT)
+
+
 def get_authors():
     authors = []
     try:
@@ -32,49 +44,11 @@ def get_authors():
     return ", ".join(authors)
 
 
-def get_long_description():
-    """
-    returns README.creole as ReStructuredText.
-    Code from:
-        https://code.google.com/p/python-creole/wiki/UseInSetup
-    """
-    desc_creole = ""
-    raise_errors = "register" in sys.argv or "sdist" in sys.argv or "--long-description" in sys.argv
-    try:
-        f = file(os.path.join(PACKAGE_ROOT, "README.creole"), "r")
-        desc_creole = f.read()
-        f.close()
-        desc_creole = unicode(desc_creole, 'utf-8').strip()
-
-        try:
-            from creole import creole2html, html2rest
-        except ImportError:
-            etype, evalue, etb = sys.exc_info()
-            evalue = etype("%s - Please install python-creole, e.g.: pip install python-creole" % evalue)
-            raise etype, evalue, etb
-
-        desc_html = creole2html(desc_creole)
-        long_description = html2rest(desc_html)
-        long_description = long_description.encode("utf-8")
-    except Exception, err:
-        if raise_errors:
-            raise
-        # Don't raise the error e.g. in ./setup install process
-        long_description = "[Error: %s]\n%s" % (err, desc_creole)
-
-    if raise_errors:
-        # Try if created ReSt code can be convertet into html
-        from creole.rest2html.clean_writer import rest2html
-        rest2html(long_description)
-
-    return long_description
-
-
 setup(
     name='django-processinfo',
     version=VERSION_STRING,
     description='django-processinfo is a Django application to collect information about the running server processes.',
-    long_description=get_long_description(),
+    long_description=long_description,
     author=get_authors(),
     maintainer="Jens Diemer",
     maintainer_email="django-processinfo@jensdiemer.de",
