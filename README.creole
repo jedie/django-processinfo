@@ -10,8 +10,10 @@ What is it not:
 more info: http://www.python-forum.de/viewtopic.php?f=6&t=27168 (de)
 
 Here some screenshots (from v0.2 - 19.08.2011) how it looks like:
-** [[http://www.pylucid.org/media/screenshots_PyLucid/django-processinfo/django-processinfo20110819-1.png|Screenshot 1]]
-** [[http://www.pylucid.org/media/screenshots_PyLucid/django-processinfo/django-processinfo20110819-2.png|Screenshot 2]]
+* [[http://www.pylucid.org/media/screenshots_PyLucid/django-processinfo/django-processinfo20110819-1.png|Screenshot 1]]
+* [[http://www.pylucid.org/media/screenshots_PyLucid/django-processinfo/django-processinfo20110819-2.png|Screenshot 2]]
+
+{{http://www.pylucid.org/media/screenshots_PyLucid/django-processinfo/django-processinfo20110819-1.png|Screenshot 1}}
 
 
 == install ==
