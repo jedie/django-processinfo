@@ -51,7 +51,9 @@ pip install django-processinfo
 }}}
 
 2. add settings (see below)
+
 3. create tables (run syncdb)
+
 
 == settings ==
 
