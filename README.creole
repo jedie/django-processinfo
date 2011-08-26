@@ -20,7 +20,7 @@ django-processinfo splits some of these data per SITE_ID, so you can see e.g. wh
 What is it not:
 * track user actions
 * collect infos which are found in e.g. apache.log
-* not a profiler (read [[https://code.djangoproject.com/wiki/ProfilingDjango]])
+* Its not a sourcecode profiler (read [[https://code.djangoproject.com/wiki/ProfilingDjango]])
 
 more info: http://www.python-forum.de/viewtopic.php?f=6&t=27168 (de)
 
