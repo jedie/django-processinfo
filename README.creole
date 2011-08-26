@@ -1,6 +1,21 @@
 django-processinfo is a reuseable Django application for collecing information about the running server processes.
+We try to cause as little additional overhead: django-processinfo creates most of the time only one database query to update the data.
 
-This only works, if **/proc/$$/status** exists. So only on unix/linux like platforms, yet.
+The most important data that django-processinfo will be captured:
+
+* Process statistics:
+** process PID, start time, life times
+** Number of average/max living processes
+** min/average/max response times
+** Total request/exceptions count
+* Memory statistics:
+** min/average/max memory usage (VmRSS, VmPeak)
+* System informations:
+** System memory usage
+** Swap usage
+** load average
+
+django-processinfo splits some of these data per SITE_ID, so you can see e.g. which site is mostly used.
 
 What is it not:
 * track user actions
@@ -8,6 +23,12 @@ What is it not:
 * not a profiler (read [[https://code.djangoproject.com/wiki/ProfilingDjango]])
 
 more info: http://www.python-forum.de/viewtopic.php?f=6&t=27168 (de)
+
+
+== limitation ==
+
+This only works, if **/proc/$$/status** exists. So only on unix/linux like platforms, yet.
+
 
 == screenshots ==
 
@@ -21,7 +42,6 @@ Here [[http://www.pylucid.org/permalink/340/pylucid-screenshots/django-processin
 
 {{http://www.pylucid.org/media/screenshots_PyLucid/django-processinfo/django-processinfo20110819-2.png|Screenshot 2}}
 
-----
 
 == install ==
 
