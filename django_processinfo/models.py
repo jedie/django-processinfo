@@ -58,6 +58,10 @@ class SiteStatistics(BaseModel):
             self.process_count_avg = 1 # Less than one is not possible ;)
 
         self.process_count_max = max([self.process_count_max, living_process_count])
+        return living_process_count
+
+    def __unicode__(self):
+        return u"SiteStatistics for %s" % self.site
 
     class Meta:
         verbose_name_plural = verbose_name = "Site statistics"
@@ -72,10 +76,10 @@ class ProcessInfoManager(models.Manager):
         """
         proc_dirlist = os.listdir("/proc/")
 
-        if site:
-            queryset = self.filter(site=site)
-        else:
+        if site is None:
             queryset = self.all()
+        else:
+            queryset = self.filter(site=site)
 
         queryset = queryset.only("pid")
         living_pids = []
@@ -88,6 +92,16 @@ class ProcessInfoManager(models.Manager):
                 living_pids.append(pid)
 
         queryset.filter(pid__in=dead_pids).update(alive=False)
+
+        if site is not None and site == Site.objects.get_current():
+            # Assume that the current PID is in living pid list.
+            # (For calculating the current living process count)
+            # The ProcessInfo() instance doesn't exist in the first Request,
+            # because it's created in middleware.process_response()!
+            current_pid = os.getpid()
+            if  current_pid not in living_pids:
+                living_pids.append(current_pid)
+
         return living_pids
 
 

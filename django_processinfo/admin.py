@@ -43,6 +43,7 @@ class BaseModelAdmin(admin.ModelAdmin):
         site_count = 0
         first_start_time = None
 
+        process_count_current = 0
         process_count_max = 0
         process_spawn = 0
         process_count_avg = 0.0
@@ -78,9 +79,10 @@ class BaseModelAdmin(admin.ModelAdmin):
             if first_start_time is None or site_stats.start_time < first_start_time:
                 first_start_time = site_stats.start_time
 
-            site_stats.update_informations()
+            living_process_count = site_stats.update_informations()
             site_stats.save()
 
+            process_count_current += living_process_count
             process_count_max += site_stats.process_count_max
             process_spawn += site_stats.process_spawn
             process_count_avg += site_stats.process_count_avg
@@ -117,6 +119,7 @@ class BaseModelAdmin(admin.ModelAdmin):
                 Sum("ru_utime_total"), # total user mode time
                 Sum("ru_stime_total"), # total system mode time                
             )
+            data["living_process_count"] = living_process_count
             self.aggregate_data[site] = data
 
             request_count += data["request_count__sum"] or 1
@@ -176,6 +179,7 @@ class BaseModelAdmin(admin.ModelAdmin):
 
             "first_start_time": first_start_time,
 
+            "process_count_current":process_count_current,
             "process_spawn":process_spawn,
             "process_count_max":process_count_max,
             "process_count_avg": process_count_avg,
@@ -265,16 +269,20 @@ class SiteStatisticsAdmin(BaseModelAdmin):
         return aggregate_data["exception_count__sum"] or 0
     exception_count.short_description = _("Exceptions")
 
-    def process_count_avg2(self, obj):
-        return u"%.1f" % round(obj.process_count_avg, 1)
-    process_count_avg2.short_description = _("Avg process count")
-    process_count_avg2.admin_order_field = "process_count_avg"
+    def process_count(self, obj):
+        living_process_count = self.aggregate_data[obj.site]["living_process_count"]
+        return "%s / %.1f / %s" % (
+            living_process_count,
+            round(obj.process_count_avg, 1),
+            obj.process_count_max
+        )
+    process_count.short_description = _("Living processes (current/avg/max)")
 
     list_display = [
         "site",
         "sum_memory_avg", "sum_vm_peak",
         "response_time_avg", "request_count", "exception_count",
-        "process_spawn", "process_count_avg2", "process_count_max",
+        "process_spawn", "process_count",
         "start_time2",
     ]
 #    if not settings.DEBUG:

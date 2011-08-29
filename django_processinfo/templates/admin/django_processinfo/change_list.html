@@ -60,8 +60,8 @@
 		</td>
 		<td>
 			<dl>
-				<dt>{% trans "Living processes" %}</dt>
-  				<dd>- / {{ process_count_avg|floatformat:1 }} / {{ process_count_max }}</dd>
+				<dt>{% trans "Living processes (current/avg/max)" %}</dt>
+  				<dd>{{ process_count_current }} / {{ process_count_avg|floatformat:1 }} / {{ process_count_max }}</dd>
   				
 				<dt>{% trans "Processes lifetime" %}</dt>
   				<dd>{{ life_time_min }} / {{ life_time_avg }} / {{ life_time_max }}</dd>
