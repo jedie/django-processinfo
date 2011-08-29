@@ -104,6 +104,10 @@ Available django-processinfo settings can you found in [[https://github.com/jedi
 
 == history ==
 
+* v0.5.0
+** New: Display some static system informations (uname, domain name, ip adress, python version, sys.prefix)
+** New: current living processes (also per site)
+** display sum of user/system mode time
 * v0.4.1
 ** Bugfix for UnicodeEncodeError in setup: Use new solution, see: https://code.google.com/p/python-creole/wiki/UseInSetup
 * v0.4
