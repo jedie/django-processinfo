@@ -67,6 +67,9 @@ class BaseModelAdmin(admin.ModelAdmin):
         response_time_max_avg = None
         response_time_avg = None
 
+        ru_utime_total = 0.0 # total user mode time
+        ru_stime_total = 0.0 # total system mode time     
+
         self.aggregate_data = {}
         queryset = SiteStatistics.objects.all()
         for site_stats in queryset:
@@ -110,6 +113,9 @@ class BaseModelAdmin(admin.ModelAdmin):
                 Avg("response_time_min"),
                 Avg("response_time_avg"),
                 Avg("response_time_max"),
+
+                Sum("ru_utime_total"), # total user mode time
+                Sum("ru_stime_total"), # total system mode time                
             )
             self.aggregate_data[site] = data
 
@@ -145,6 +151,9 @@ class BaseModelAdmin(admin.ModelAdmin):
             response_time_max_avg = average(
                 response_time_max_avg, data["response_time_max__avg"] or 0, site_count
             )
+
+            ru_utime_total += data["ru_utime_total__sum"] or 0 # total user mode time
+            ru_stime_total += data["ru_stime_total__sum"] or 0 # total system mode time   
 
         # Calculate the process life times
         # timedelta.total_seconds() is new in Python 2.7
@@ -189,6 +198,9 @@ class BaseModelAdmin(admin.ModelAdmin):
             "response_time_min_avg": u"%.1fms" % (response_time_min_avg * 1000),
             "response_time_max_avg": u"%.1fms" % (response_time_max_avg * 1000),
             "response_time_avg": u"%.1fms" % (response_time_avg * 1000),
+
+            "ru_utime_total": human_duration(ru_utime_total), # total user mode time
+            "ru_stime_total": human_duration(ru_stime_total), # total system mode time 
 
             "version_string": VERSION_STRING,
 

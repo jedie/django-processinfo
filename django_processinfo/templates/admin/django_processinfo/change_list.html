@@ -46,6 +46,7 @@
 		<th>{% trans "Memory statistics" %}</th>
 		<th>{% trans "Processes statistics" %}</th>
 		<th>{% trans "Request/Response statistics" %}</th>
+		<th>{% trans "load information" %}</th>
 	</tr>
 	<tr>
 		<td>
@@ -82,6 +83,15 @@
   				
 				<dt>{% trans "Response time" %}</dt>
   				<dd>{{ response_time_min_avg }} / {{ response_time_avg }} / {{ response_time_max_avg }}</dd>
+			</dl>
+		</td>
+		<td>
+			<dl>
+				<dt>{% trans "Total user mode time" %}</dt>
+  				<dd>{{ ru_utime_total }}</dd>
+  				
+				<dt>{% trans "Total system mode time" %}</dt>
+  				<dd>{{ ru_stime_total }}</dd>
 			</dl>
 		</td>
 	</tr>
