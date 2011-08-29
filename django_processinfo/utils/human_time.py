@@ -62,17 +62,18 @@ def timesince2(d, now=None):
     >>> timesince2(datetime.datetime(2005, 7, 14, 12, 30, 00), datetime.datetime(2005, 7, 14, 12, 30, 00, 1200))
     u'<span title="July 14, 2005, 12:30 p.m." style="cursor:help;">1.2 ms</span>'
     """
-    # Convert datetime.date to datetime.datetime for comparison.
     if not isinstance(d, datetime.datetime):
+        # Convert datetime.date to datetime.datetime for comparison.
         d = datetime.datetime(d.year, d.month, d.day)
-    if now and not isinstance(now, datetime.datetime):
-        now = datetime.datetime(now.year, now.month, now.day)
 
-    if not now:
+    if now is None:
         if d.tzinfo:
             now = datetime.datetime.now(LocalTimezone(d))
         else:
             now = datetime.datetime.now()
+    elif not isinstance(now, datetime.datetime):
+            # Convert datetime.date to datetime.datetime
+            now = datetime.datetime(now.year, now.month, now.day)
 
     # ignore microsecond part of 'd' since we removed it from 'now'
     delta = now - (d - datetime.timedelta(0, 0, d.microsecond))
