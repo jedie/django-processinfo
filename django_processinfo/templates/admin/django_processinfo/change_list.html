@@ -87,11 +87,14 @@
 		</td>
 		<td>
 			<dl>
-				<dt>{% trans "Total user mode time" %}</dt>
-  				<dd>{{ ru_utime_total }}</dd>
+				<dt>{% trans "Total processor time (user/system/total)" %}</dt>
+  				<dd>{{ user_time_total }} / {{ system_time_total }} / {{ processor_time }}</dd>
   				
-				<dt>{% trans "Total system mode time" %}</dt>
-  				<dd>{{ ru_stime_total }}</dd>
+				<dt>{% trans "Total response time" %}</dt>
+  				<dd>{{ response_time_sum }}</dd>
+  				
+				<dt>{% trans "Loads (response time in relation to processor time)" %}</dt>
+  				<dd>{{ loads|floatformat:1 }}% <small>{% trans "(Higher percent is better)" %}</small></dd>
 			</dl>
 		</td>
 	</tr>

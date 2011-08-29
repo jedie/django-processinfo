@@ -157,6 +157,9 @@ class ProcessInfo(BaseModel):
     response_time_avg = models.FloatField(
         help_text=_("Average processing time.")
     )
+    response_time_sum = models.FloatField(
+        help_text=_("Total processing time.")
+    )
 
     # CPU information:
 
@@ -166,22 +169,22 @@ class ProcessInfo(BaseModel):
     threads_min = models.PositiveSmallIntegerField()
     threads_max = models.PositiveSmallIntegerField()
 
-    ru_utime_total = models.FloatField(
+    user_time_total = models.FloatField(
         help_text=_("total user mode time")
     )
-    ru_stime_total = models.FloatField(
+    system_time_total = models.FloatField(
         help_text=_("total system mode time")
     )
-    ru_utime_min = models.FloatField(
+    user_time_min = models.FloatField(
         help_text=_("Minimum user mode time")
     )
-    ru_stime_min = models.FloatField(
+    system_time_min = models.FloatField(
         help_text=_("Minimum system mode time")
     )
-    ru_utime_max = models.FloatField(
+    user_time_max = models.FloatField(
         help_text=_("Maximum user mode time")
     )
-    ru_stime_max = models.FloatField(
+    system_time_max = models.FloatField(
         help_text=_("Maximum system mode time")
     )
 

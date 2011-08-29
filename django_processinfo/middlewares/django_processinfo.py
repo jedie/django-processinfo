@@ -9,7 +9,7 @@
 """
 
 from __future__ import division, absolute_import
-import resource
+import os
 import sys
 import time
 
@@ -25,6 +25,15 @@ from django_processinfo.utils.proc_info import process_information
 
 # Save the start time of the current running python instance
 overall_start_time = time.time()
+
+
+def get_processor_times():
+    """
+    return the accumulated system/user times, in seconds.
+    >>> user_time, system_time = get_processor_times()
+    """
+    user, system, child_user, child_system = os.times()[:4]
+    return (user + child_user, system + child_system)
 
 
 class ProcessInfoMiddleware(object):
@@ -60,9 +69,10 @@ class ProcessInfoMiddleware(object):
         self.vmpeak = p["VmPeak"]
         self.memory = p["VmRSS"]
 
-        self_rusage = resource.getrusage(resource.RUSAGE_SELF)
-        self.ru_stime = self_rusage.ru_stime
-        self.ru_utime = self_rusage.ru_utime
+        # Calculate user/system processor times only for this request:
+        user_time, system_time = get_processor_times()
+        self.user_time = user_time - self.start_user_time
+        self.system_time = system_time - self.start_system_time
 
         self.response_time = self.own_start_time - self.start_time
         self.overall_time = self.own_start_time - overall_start_time
@@ -76,15 +86,16 @@ class ProcessInfoMiddleware(object):
                 "response_time_min":self.response_time,
                 "response_time_max":self.response_time,
                 "response_time_avg":self.response_time,
+                "response_time_sum":self.response_time,
                 "threads_avg": self.threads,
                 "threads_min":self.threads,
                 "threads_max":self.threads,
-                "ru_utime_total":self.ru_utime,
-                "ru_stime_total":self.ru_stime,
-                "ru_utime_min":self.ru_utime,
-                "ru_stime_min":self.ru_stime,
-                "ru_utime_max":self.ru_utime,
-                "ru_stime_max":self.ru_stime,
+                "user_time_min":self.user_time,
+                "user_time_max":self.user_time,
+                "user_time_total":self.user_time,
+                "system_time_total":self.system_time,
+                "system_time_min":self.system_time,
+                "system_time_max":self.system_time,
                 "vm_peak_min":self.vmpeak,
                 "vm_peak_max":self.vmpeak,
                 "vm_peak_avg":self.vmpeak,
@@ -112,6 +123,7 @@ class ProcessInfoMiddleware(object):
             process_info.response_time_avg = average(
                 process_info.response_time_avg, self.response_time, request_count
             )
+            process_info.response_time_sum += self.response_time
 
             process_info.threads_min = min((process_info.threads_min, self.threads))
             process_info.threads_max = max((process_info.threads_max, self.threads))
@@ -119,12 +131,13 @@ class ProcessInfoMiddleware(object):
                 process_info.threads_avg, self.threads, request_count
             )
 
-            process_info.ru_utime_total += self.ru_utime
-            process_info.ru_stime_total += self.ru_stime
-            process_info.ru_utime_min = min((process_info.ru_utime_min, self.ru_utime))
-            process_info.ru_stime_min = min((process_info.ru_stime_min, self.ru_stime))
-            process_info.ru_utime_max = max((process_info.ru_utime_min, self.ru_utime))
-            process_info.ru_stime_max = max((process_info.ru_stime_min, self.ru_stime))
+            process_info.user_time_min = min((process_info.user_time_min, self.user_time))
+            process_info.user_time_max = max((process_info.user_time_min, self.user_time))
+            process_info.user_time_total += self.user_time
+
+            process_info.system_time_min = min((process_info.system_time_min, self.system_time))
+            process_info.system_time_max = max((process_info.system_time_min, self.system_time))
+            process_info.system_time_total += self.system_time
 
             process_info.vm_peak_min = min((process_info.vm_peak_min, self.vmpeak))
             process_info.vm_peak_max = max((process_info.vm_peak_max, self.vmpeak))
@@ -154,6 +167,10 @@ class ProcessInfoMiddleware(object):
     def process_request(self, request):
         """ save start time and database connections count. """
         self.start_time = time.time()
+        # We would like to accumulate only the times from processes
+        # which are included in statistics. So we not use the absolute
+        # processor times.
+        self.start_user_time, self.start_system_time = get_processor_times()
         if settings.DEBUG:
             # get number of db queries before we do anything
             self.old_queries = len(connection.queries)

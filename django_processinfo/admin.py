@@ -90,9 +90,10 @@ class BaseModelAdmin(admin.ModelAdmin):
         response_time_min_avg = None
         response_time_max_avg = None
         response_time_avg = None
+        response_time_sum = 0.0
 
-        ru_utime_total = 0.0 # total user mode time
-        ru_stime_total = 0.0 # total system mode time     
+        user_time_total = 0.0 # total user mode time
+        system_time_total = 0.0 # total system mode time     
 
         self.aggregate_data = {}
         queryset = SiteStatistics.objects.all()
@@ -138,9 +139,10 @@ class BaseModelAdmin(admin.ModelAdmin):
                 Avg("response_time_min"),
                 Avg("response_time_avg"),
                 Avg("response_time_max"),
+                Sum("response_time_sum"),
 
-                Sum("ru_utime_total"), # total user mode time
-                Sum("ru_stime_total"), # total system mode time                
+                Sum("user_time_total"), # total user mode time
+                Sum("system_time_total"), # total system mode time                
             )
             data["living_process_count"] = living_process_count
             self.aggregate_data[site] = data
@@ -177,16 +179,22 @@ class BaseModelAdmin(admin.ModelAdmin):
             response_time_max_avg = average(
                 response_time_max_avg, data["response_time_max__avg"] or 0, site_count
             )
+            response_time_sum += data["response_time_sum__sum"] or 0
 
-            ru_utime_total += data["ru_utime_total__sum"] or 0 # total user mode time
-            ru_stime_total += data["ru_stime_total__sum"] or 0 # total system mode time   
+            user_time_total += data["user_time_total__sum"] or 0 # total user mode time
+            system_time_total += data["system_time_total__sum"] or 0 # total system mode time   
 
         # Calculate the process life times
         # timedelta.total_seconds() is new in Python 2.7
-        life_time_values = [datetime2float(td) for td in life_time_values]
-        life_time_min = min(life_time_values)
-        life_time_max = max(life_time_values)
-        life_time_avg = sum(life_time_values) / len(life_time_values)
+        if not life_time_values: # First request with empty data
+            life_time_min = 0
+            life_time_max = 0
+            life_time_avg = 0
+        else:
+            life_time_values = [datetime2float(td) for td in life_time_values]
+            life_time_min = min(life_time_values)
+            life_time_max = max(life_time_values)
+            life_time_avg = sum(life_time_values) / len(life_time_values)
 
         # get information from /proc/meminfo    
         meminfo_dict = dict(meminfo())
@@ -222,12 +230,15 @@ class BaseModelAdmin(admin.ModelAdmin):
             "threads_max_avg": threads_max_avg,
             "threads_avg": threads_avg,
 
-            "response_time_min_avg": u"%.1fms" % (response_time_min_avg * 1000),
-            "response_time_max_avg": u"%.1fms" % (response_time_max_avg * 1000),
-            "response_time_avg": u"%.1fms" % (response_time_avg * 1000),
+            "response_time_min_avg": human_duration(response_time_min_avg),
+            "response_time_max_avg": human_duration(response_time_max_avg),
+            "response_time_avg": human_duration(response_time_avg),
+            "response_time_sum": human_duration(response_time_sum),
 
-            "ru_utime_total": human_duration(ru_utime_total), # total user mode time
-            "ru_stime_total": human_duration(ru_stime_total), # total system mode time 
+            "user_time_total": human_duration(user_time_total), # total user mode time
+            "system_time_total": human_duration(system_time_total), # total system mode time
+            "processor_time": human_duration(user_time_total + system_time_total),
+            "loads": (user_time_total + system_time_total) / response_time_sum * 100,
 
             "version_string": VERSION_STRING,
 
@@ -276,7 +287,7 @@ class SiteStatisticsAdmin(BaseModelAdmin):
     def response_time_avg(self, obj):
         aggregate_data = self.aggregate_data[obj.site]
         response_time_avg = aggregate_data["response_time_avg__avg"] or 0
-        return u"%.1fms" % (response_time_avg * 1000)
+        return human_duration(response_time_avg)
     response_time_avg.short_description = _("Avg response time")
 
     def request_count(self, obj):
@@ -324,9 +335,14 @@ class ProcessInfoAdmin(BaseModelAdmin):
     life_time.allow_tags = True
 
     def response_time_avg2(self, obj):
-        return u"%.1fms" % (obj.response_time_avg * 1000)
+        return human_duration(obj.response_time_avg)
     response_time_avg2.short_description = _("Avg response time")
     response_time_avg2.admin_order_field = "response_time_avg"
+
+    def response_time_sum2(self, obj):
+        return human_duration(obj.response_time_sum)
+    response_time_sum2.short_description = _("Total response time")
+    response_time_sum2.admin_order_field = "response_time_sum"
 
     def memory_avg2(self, obj):
         return filesizeformat(obj.memory_avg)
@@ -377,7 +393,10 @@ class ProcessInfoAdmin(BaseModelAdmin):
 
     list_display = [
         "pid", "alive2", "site", "request_count", "exception_count", "db_query_count_avg",
-        "response_time_avg2",
+        "response_time_avg2", "response_time_sum2",
+
+        "user_time_total", "system_time_total",
+
         "memory_avg2", "vm_peak_avg2",
         "start_time2", "lastupdate_time2", "life_time"
     ]
