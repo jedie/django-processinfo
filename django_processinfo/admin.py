@@ -11,7 +11,9 @@
 from __future__ import division, absolute_import
 
 import os
+import sys
 import time
+import socket
 
 from django.conf import settings
 from django.contrib import admin
@@ -27,7 +29,28 @@ from django_processinfo import VERSION_STRING
 from django_processinfo.utils.proc_info import meminfo, uptime_infomation
 from django_processinfo.utils.human_time import timesince2, human_duration, \
     datetime2float
-import sys
+
+
+# Collect some static informations
+try:
+    domain_name = socket.getfqdn()
+except Exception, err:
+    domain_name = "[Error: %s]" % err
+    ip_addresses = "-"
+else:
+    try:
+        ip_addresses = ", ".join(socket.gethostbyname_ex(domain_name)[2])
+    except Exception, err:
+        ip_addresses = "[Error: %s]" % err
+
+STATIC_INFORMATIONS = {
+    "python_version": "%s %s" % (" ".join(sys.subversion), sys.version),
+    "sys_prefix": sys.prefix,
+    "os_uname": " ".join(os.uname()),
+
+    "domain_name": domain_name,
+    "ip_addresses": ip_addresses,
+}
 
 
 class BaseModelAdmin(admin.ModelAdmin):
@@ -221,11 +244,8 @@ class BaseModelAdmin(admin.ModelAdmin):
             "swap_total": meminfo_dict["SwapTotal"],
 
             "updatetime": timesince2(updatetime),
-
-            "python_version": "%s %s" % (" ".join(sys.subversion), sys.version),
-            "sys_prefix": sys.prefix,
-            "os_uname": " ".join(os.uname()),
         }
+        extra_context.update(STATIC_INFORMATIONS)
 
         try:
             extra_context["loadavg"] = os.getloadavg()
