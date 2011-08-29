@@ -33,6 +33,8 @@
                         {{ loadavg.0 }} / {{ loadavg.1 }} / {{ loadavg.2 }}
                     {% endif %}
                 </dd>
+                <dt>uptime</dt>
+                <dd>{{ updatetime }}</dd>
             </dl>
         </td>
     </tr>
@@ -91,4 +93,31 @@
 	<li><a href="https://github.com/jedie/django-processinfo">django-processinfo v{{ version_string }}</a></li>
 </ul>
 <hr />
-{{ block.super }}{% endblock %}
+{{ block.super }}
+<h2>Static informations</h2>
+<table>
+    <tr>
+        <th>{% trans "System information" %}</th>
+        <th>{% trans "Python informations" %}</th>
+    </tr>
+    <tr>
+        <td>
+            <dl>
+                <dt>{% trans "uname" %}</dt>
+                <dd>{{ os_uname }}</dd>
+            </dl>
+        </td>
+        <td>
+            <dl>               
+                <dt>{% trans "Python version" %}</dt>
+                <dd>{{ python_version }}</dd>
+                
+                <dt>sys.prefix</dt>
+                <dd>{{ sys_prefix }}</dd>
+                
+                
+            </dl>
+        </td>
+    </tr>
+</table>
+{% endblock %}

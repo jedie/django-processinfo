@@ -24,9 +24,10 @@ from django.utils.translation import ugettext as _
 from django_processinfo.models import SiteStatistics, ProcessInfo
 from django_processinfo.utils.average import average
 from django_processinfo import VERSION_STRING
-from django_processinfo.utils.proc_info import meminfo
+from django_processinfo.utils.proc_info import meminfo, uptime_infomation
 from django_processinfo.utils.human_time import timesince2, human_duration, \
     datetime2float
+import sys
 
 
 class BaseModelAdmin(admin.ModelAdmin):
@@ -158,6 +159,9 @@ class BaseModelAdmin(admin.ModelAdmin):
         mem_free = meminfo_dict["MemFree"] + meminfo_dict["Buffers"] + meminfo_dict["Cached"]
         mem_used = meminfo_dict["MemTotal"] - mem_free
 
+        # information from /proc/uptime
+        updatetime = uptime_infomation()
+
         extra_context = {
             "site_count":site_count,
 
@@ -199,6 +203,12 @@ class BaseModelAdmin(admin.ModelAdmin):
             "swap_used": swap_used,
             "swap_perc": float(swap_used) / meminfo_dict["SwapTotal"] * 100,
             "swap_total": meminfo_dict["SwapTotal"],
+
+            "updatetime": timesince2(updatetime),
+
+            "python_version": "%s %s" % (" ".join(sys.subversion), sys.version),
+            "sys_prefix": sys.prefix,
+            "os_uname": " ".join(os.uname()),
         }
 
         try:

@@ -12,6 +12,7 @@
 
 
 from __future__ import with_statement
+import datetime
 
 
 def process_information(pid=None):
@@ -115,6 +116,19 @@ def meminfo():
     return tuple(result)
 
 
+def uptime_infomation():
+    """
+    Returns a dict with informations from /proc/uptime
+    """
+    with open("/proc/uptime", "r") as f:
+        raw_uptime = f.readline().strip().split(" ")[0]
+        uptime_sec = float(raw_uptime)
+
+    d = datetime.datetime.now() - datetime.timedelta(seconds=uptime_sec)
+    return d
+
+
+
 if __name__ == "__main__":
     import pprint
 
@@ -136,3 +150,5 @@ if __name__ == "__main__":
         print "Error: %s" % err
     else:
         print "free: %i Bytes" % m["MemFree"]
+
+    print "uptime_infomation():", uptime_infomation()
