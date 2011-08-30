@@ -132,3 +132,5 @@ If you like it, send some [[http://www.bitcoin.org/|Bitcoins]] to [[https://bloc
 
 | GitHub | https://github.com/jedie/django-processinfo
 | PyPi   | http://pypi.python.org/pypi/django-processinfo
+| IRC    | [[http://www.pylucid.org/permalink/304/irc-channel|#pylucid on freenode.net]]
+
