@@ -58,7 +58,7 @@ class SiteStatistics(BaseModel):
             self.process_count_avg = 1 # Less than one is not possible ;)
 
         self.process_count_max = max([self.process_count_max, living_process_count])
-        return living_process_count
+        return living_pids
 
     def __unicode__(self):
         return u"SiteStatistics for %s" % self.site

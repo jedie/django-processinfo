@@ -18,17 +18,18 @@ import socket
 from django.conf import settings
 from django.contrib import admin
 from django.core.exceptions import PermissionDenied
-from django.db.models.aggregates import Avg, Sum
+from django.db.models.aggregates import Avg, Sum, Min, Max
 from django.http import HttpResponseRedirect
 from django.template.defaultfilters import filesizeformat
 from django.utils.translation import ugettext as _
 
+from django_processinfo import VERSION_STRING
 from django_processinfo.models import SiteStatistics, ProcessInfo
 from django_processinfo.utils.average import average
-from django_processinfo import VERSION_STRING
-from django_processinfo.utils.proc_info import meminfo, uptime_infomation
 from django_processinfo.utils.human_time import timesince2, human_duration, \
     datetime2float
+from django_processinfo.utils.proc_info import meminfo, uptime_infomation, \
+    process_information
 
 
 # Collect some static informations
@@ -83,8 +84,9 @@ class BaseModelAdmin(admin.ModelAdmin):
         vm_peak_max_avg = 0.0
         vm_peak_avg = 0.0
 
-        threads_min_avg = None
-        threads_max_avg = None
+        threads_current = 0
+        threads_min = 99999
+        threads_max = 0
         threads_avg = None
 
         response_time_min_avg = None
@@ -103,9 +105,20 @@ class BaseModelAdmin(admin.ModelAdmin):
             if first_start_time is None or site_stats.start_time < first_start_time:
                 first_start_time = site_stats.start_time
 
-            living_process_count = site_stats.update_informations()
+            living_pids = site_stats.update_informations()
             site_stats.save()
 
+            for pid in living_pids:
+                try:
+                    p = dict(process_information(pid))
+                except IOError: # Process dead -> mark as dead
+                    process = ProcessInfo.objects.get(pid=pid)
+                    process.alive = False
+                    process.save()
+                    continue
+                threads_current += p["Threads"]
+
+            living_process_count = len(living_pids)
             process_count_current += living_process_count
             process_count_max += site_stats.process_count_max
             process_spawn += site_stats.process_spawn
@@ -132,9 +145,9 @@ class BaseModelAdmin(admin.ModelAdmin):
                 Sum("request_count"),
                 Sum("exception_count"),
 
-                Avg("threads_min"),
+                Min("threads_min"),
                 Avg("threads_avg"),
-                Avg("threads_max"),
+                Max("threads_max"),
 
                 Avg("response_time_min"),
                 Avg("response_time_avg"),
@@ -160,14 +173,10 @@ class BaseModelAdmin(admin.ModelAdmin):
             vm_peak_avg += (data["vm_peak_avg__avg"] or 0) * process_count_avg
             vm_peak_max_avg += (data["vm_peak_max__avg"] or 0) * process_count_avg
 
-            threads_min_avg = average(
-                threads_min_avg, data["threads_min__avg"] or 1, site_count
-            )
+            threads_min = min([threads_min, data["threads_min__min"] or 9999])
+            threads_max = max([threads_max, data["threads_max__max"] or 1])
             threads_avg = average(
                 threads_avg, data["threads_avg__avg"] or 1, site_count
-            )
-            threads_max_avg = average(
-                threads_max_avg, data["threads_max__avg"] or 1, site_count
             )
 
             response_time_min_avg = average(
@@ -226,9 +235,10 @@ class BaseModelAdmin(admin.ModelAdmin):
             "vm_peak_max_avg": vm_peak_max_avg,
             "vm_peak_avg": vm_peak_avg,
 
-            "threads_min_avg": threads_min_avg,
-            "threads_max_avg": threads_max_avg,
+            "threads_current": threads_current,
+            "threads_min": threads_min,
             "threads_avg": threads_avg,
+            "threads_max": threads_max,
 
             "response_time_min_avg": human_duration(response_time_min_avg),
             "response_time_max_avg": human_duration(response_time_max_avg),
@@ -255,6 +265,8 @@ class BaseModelAdmin(admin.ModelAdmin):
             "swap_total": meminfo_dict["SwapTotal"],
 
             "updatetime": timesince2(updatetime),
+
+            "script_filename": self.request.META.get("SCRIPT_FILENAME", "???"),
         }
         extra_context.update(STATIC_INFORMATIONS)
 
@@ -309,11 +321,20 @@ class SiteStatisticsAdmin(BaseModelAdmin):
         )
     process_count.short_description = _("Living processes (current/avg/max)")
 
+    def threads_info(self, obj):
+        aggregate_data = self.aggregate_data[obj.site]
+        threads_min = aggregate_data["threads_min__min"]
+        threads_max = aggregate_data["threads_max__max"]
+        threads_avg = aggregate_data["threads_avg__avg"]
+        return "%i&nbsp;/&nbsp;%.2f&nbsp;/&nbsp;%i" % (threads_min, threads_avg, threads_max)
+    threads_info.short_description = _("Threads")
+    threads_info.allow_tags = True
+
     list_display = [
         "site",
         "sum_memory_avg", "sum_vm_peak",
         "response_time_avg", "request_count", "exception_count",
-        "process_spawn", "process_count",
+        "process_spawn", "process_count", "threads_info",
         "start_time2",
     ]
 #    if not settings.DEBUG:
@@ -367,6 +388,11 @@ class ProcessInfoAdmin(BaseModelAdmin):
     alive2.short_description = _("alive")
     alive2.admin_order_field = "alive"
 
+    def threads_info(self, obj):
+        return "%i&nbsp;/&nbsp;%.2f&nbsp;/&nbsp;%i" % (obj.threads_min, obj.threads_avg, obj.threads_max)
+    threads_info.short_description = _("Threads")
+    threads_info.allow_tags = True
+
     def remove_dead_entries(self, request, queryset):
         """
         TODO: Create a link in "object tools" in changelist template
@@ -393,7 +419,7 @@ class ProcessInfoAdmin(BaseModelAdmin):
 
     list_display = [
         "pid", "alive2", "site", "request_count", "exception_count", "db_query_count_avg",
-        "response_time_avg2", "response_time_sum2",
+        "response_time_avg2", "response_time_sum2", "threads_info",
 
         "user_time_total", "system_time_total",
 

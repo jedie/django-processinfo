@@ -66,8 +66,8 @@
 				<dt>{% trans "Processes lifetime" %}</dt>
   				<dd>{{ life_time_min }} / {{ life_time_avg }} / {{ life_time_max }}</dd>
   				
-				<dt>{% trans "Threads per process" %}</dt>
-  				<dd>{{ threads_min_avg|floatformat:1 }} / {{ threads_avg|floatformat:1 }} / {{ threads_max_avg|floatformat:1 }}</dd>
+				<dt>{% trans "Threads (current/min/avg/max)" %}</dt>
+  				<dd>{{ threads_current }} / {{ threads_min }} / {{ threads_avg|floatformat:1 }} / {{ threads_max }}</dd>
   				
   				<dt>{% trans "Total created processes" %}</dt>
   				<dd>{{ process_spawn }}</dd>
@@ -134,7 +134,8 @@
                 <dt>sys.prefix</dt>
                 <dd>{{ sys_prefix }}</dd>
                 
-                
+                <dt>script filename</dt>
+                <dd>{{ script_filename }}</dd>
             </dl>
         </td>
     </tr>
