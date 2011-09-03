@@ -69,27 +69,37 @@ class SiteStatistics(BaseModel):
 
 
 class ProcessInfoManager(models.Manager):
-    def living_processes(self, site=None):
-        """
-        returns a list of pids from processes which are really alive.
-        Mark dead ProcessInfo instances.
-        """
-        proc_dirlist = os.listdir("/proc/")
-
+    def get_alive_and_dead(self, site=None):
+        """ returns two list, with alive and a list with dead pids """
         if site is None:
             queryset = self.all()
         else:
             queryset = self.filter(site=site)
 
-        queryset = queryset.only("pid")
+        pids = queryset.values_list("pid", flat=True)
+
         living_pids = []
         dead_pids = []
-        for process_info in queryset:
-            pid = process_info.pid
+        proc_dirlist = os.listdir("/proc/")
+        for pid in pids:
             if not str(pid) in proc_dirlist:
                 dead_pids.append(pid)
             else:
                 living_pids.append(pid)
+
+        return living_pids, dead_pids
+
+    def living_processes(self, site=None):
+        """
+        returns a list of pids from processes which are really alive.
+        Mark dead ProcessInfo instances.
+        """
+        living_pids, dead_pids = self.get_alive_and_dead(site)
+
+        if site is None:
+            queryset = self.all()
+        else:
+            queryset = self.filter(site=site)
 
         queryset.filter(pid__in=dead_pids).update(alive=False)
 

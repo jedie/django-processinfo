@@ -7,6 +7,15 @@
   {% endblock %}
 {% endif %}
 
+{% block object-tools-items %}
+{% if cl.opts.object_name == "ProcessInfo" %}
+<li>
+	<a href="remove_dead_entries/">{% trans "Remove dead PIDs" %}</a>
+</li>
+{% endif %}
+{{ block.super }}
+{% endblock %}
+
 {% block content %}
 <h2>System information</h2>
 <table>

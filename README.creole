@@ -104,6 +104,8 @@ Available django-processinfo settings can you found in [[https://github.com/jedi
 
 == history ==
 
+* v0.5.1
+** Add "Remove dead PIDs" as admin view in "Process statistics" object tools (top, right, grey links) 
 * v0.5.0
 ** Model changes: Please recreate tables, e.g.: {{{ ./manage.py reset django_processinfo }}}
 ** New: Display some static system informations (uname, domain name, ip adress, python version, sys.prefix)

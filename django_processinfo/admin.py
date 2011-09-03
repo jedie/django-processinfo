@@ -16,6 +16,7 @@ import time
 import socket
 
 from django.conf import settings
+from django.conf.urls.defaults import patterns, url
 from django.contrib import admin
 from django.core.exceptions import PermissionDenied
 from django.db.models.aggregates import Avg, Sum, Min, Max
@@ -393,29 +394,25 @@ class ProcessInfoAdmin(BaseModelAdmin):
     threads_info.short_description = _("Threads")
     threads_info.allow_tags = True
 
-    def remove_dead_entries(self, request, queryset):
-        """
-        TODO: Create a link in "object tools" in changelist template
-        """
+    def remove_dead_entries(self, request):
+        """ remove all dead process entries """
         start_time = time.time()
-        # Check that the user has delete permission for the actual model
-        if not self.has_delete_permission(request):
-            raise PermissionDenied
 
-        queryset = self.model.objects.all().only("pid")
-        ids_to_delete = []
-        for instance in queryset:
-            if not self.active(instance):
-                ids_to_delete.append(instance.pk)
+        living_pids, dead_pids = self.model.objects.get_alive_and_dead()
 
-        queryset = self.model.objects.filter(pk__in=ids_to_delete)
-        queryset.delete()
+        self.model.objects.filter(pid__in=dead_pids).delete()
 
         self.message_user(request, _("Successfully deleted %(count)d dead entries in %(time).1fms.") % {
-            "count": len(ids_to_delete), "time": ((time.time() - start_time) * 1000)
+            "count": len(dead_pids), "time": ((time.time() - start_time) * 1000)
         })
-        return HttpResponseRedirect(request.path)
-    remove_dead_entries.short_description = _("Remove all dead processes")
+        return HttpResponseRedirect("..")
+
+    def get_urls(self):
+        urls = super(ProcessInfoAdmin, self).get_urls()
+        my_urls = patterns('',
+            url(r'^remove_dead_entries/$', self.admin_site.admin_view(self.remove_dead_entries))
+        )
+        return my_urls + urls
 
     list_display = [
         "pid", "alive2", "site", "request_count", "exception_count", "db_query_count_avg",
@@ -428,6 +425,6 @@ class ProcessInfoAdmin(BaseModelAdmin):
     ]
     if not settings.DEBUG:
         del(list_display[list_display.index("db_query_count_avg")])
-    actions = [remove_dead_entries]
+    #actions = [remove_dead_entries]
 
 admin.site.register(ProcessInfo, ProcessInfoAdmin)
