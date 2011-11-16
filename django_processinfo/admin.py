@@ -285,6 +285,41 @@ class BaseModelAdmin(admin.ModelAdmin):
 
         return super(BaseModelAdmin, self).changelist_view(request, extra_context=extra_context)
 
+    def remove_dead_entries(self, request):
+        """ remove all dead ProcessInfo entries """
+        start_time = time.time()
+
+        living_pids, dead_pids = ProcessInfo.objects.get_alive_and_dead()
+
+        ProcessInfo.objects.filter(pid__in=dead_pids).delete()
+
+        self.message_user(request, _("Successfully deleted %(count)d dead entries in %(time).1fms.") % {
+            "count": len(dead_pids), "time": ((time.time() - start_time) * 1000)
+        })
+        return HttpResponseRedirect("..")
+
+    def reset(self, request):
+        """ do a reset and delete *all* recorded data """
+        start_time = time.time()
+
+        count = ProcessInfo.objects.count()
+        count += SiteStatistics.objects.count()
+
+        ProcessInfo.objects.all().delete()
+        SiteStatistics.objects.all().delete()
+
+        self.message_user(request, _("All recorded data (%(count)d entries) successfully deleted in %(time).1fms.") % {
+            "count": count, "time": ((time.time() - start_time) * 1000)
+        })
+        return HttpResponseRedirect("..")
+
+    def get_urls(self):
+        urls = super(BaseModelAdmin, self).get_urls()
+        my_urls = patterns('',
+            url(r'^remove_dead_entries/$', self.admin_site.admin_view(self.remove_dead_entries)),
+            url(r'^reset/$', self.admin_site.admin_view(self.reset)),
+        )
+        return my_urls + urls
 
 class SiteStatisticsAdmin(BaseModelAdmin):
     def sum_memory_avg(self, obj):
@@ -400,26 +435,6 @@ class ProcessInfoAdmin(BaseModelAdmin):
         return "%i&nbsp;/&nbsp;%.2f&nbsp;/&nbsp;%i" % (obj.threads_min, obj.threads_avg, obj.threads_max)
     threads_info.short_description = _("Threads")
     threads_info.allow_tags = True
-
-    def remove_dead_entries(self, request):
-        """ remove all dead process entries """
-        start_time = time.time()
-
-        living_pids, dead_pids = self.model.objects.get_alive_and_dead()
-
-        self.model.objects.filter(pid__in=dead_pids).delete()
-
-        self.message_user(request, _("Successfully deleted %(count)d dead entries in %(time).1fms.") % {
-            "count": len(dead_pids), "time": ((time.time() - start_time) * 1000)
-        })
-        return HttpResponseRedirect("..")
-
-    def get_urls(self):
-        urls = super(ProcessInfoAdmin, self).get_urls()
-        my_urls = patterns('',
-            url(r'^remove_dead_entries/$', self.admin_site.admin_view(self.remove_dead_entries))
-        )
-        return my_urls + urls
 
     list_display = [
         "pid", "alive2", "site", "request_count", "exception_count", "db_query_count_avg",

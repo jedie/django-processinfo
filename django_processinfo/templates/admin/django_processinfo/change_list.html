@@ -8,11 +8,12 @@
 {% endif %}
 
 {% block object-tools-items %}
-{% if cl.opts.object_name == "ProcessInfo" %}
 <li>
 	<a href="remove_dead_entries/">{% trans "Remove dead PIDs" %}</a>
 </li>
-{% endif %}
+<li>
+	<a href="reset/" onclick="return confirm('{% trans "Are you sure you want to delete all data?" %}')">{% trans "Reset all data" %}</a>
+</li>
 {{ block.super }}
 {% endblock %}
 

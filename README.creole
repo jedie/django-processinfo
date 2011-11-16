@@ -104,6 +104,9 @@ Available django-processinfo settings can you found in [[https://github.com/jedi
 
 == history ==
 
+* v0.6.0
+** Add "Reset all data" in object tools.
+** Make "Remove dead PIDs" and "Reset all data" available on both admin pages.
 * v0.5.2
 ** [[https://github.com/jedie/django-processinfo/issues/4|Bugfix if no SWAP used.]]
 * v0.5.1
