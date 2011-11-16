@@ -215,6 +215,13 @@ class BaseModelAdmin(admin.ModelAdmin):
         # information from /proc/uptime
         updatetime = uptime_infomation()
 
+        swap_total = meminfo_dict["SwapTotal"]
+        if swap_total > 0:
+            swap_perc = float(swap_used) / swap_total * 100
+        else:
+            # e.g. no SWAP used
+            swap_perc = 0
+
         extra_context = {
             "site_count":site_count,
 
@@ -262,8 +269,8 @@ class BaseModelAdmin(admin.ModelAdmin):
             "mem_total": meminfo_dict["MemTotal"],
 
             "swap_used": swap_used,
-            "swap_perc": float(swap_used) / meminfo_dict["SwapTotal"] * 100,
-            "swap_total": meminfo_dict["SwapTotal"],
+            "swap_perc": swap_perc,
+            "swap_total": swap_total,
 
             "updatetime": timesince2(updatetime),
 
