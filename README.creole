@@ -104,6 +104,8 @@ Available django-processinfo settings can you found in [[https://github.com/jedi
 
 == history ==
 
+* v0.6.1
+** Auto cleanup ProcessInfo table to protect against overloading.
 * v0.6.0
 ** Add "Reset all data" in object tools.
 ** Make "Remove dead PIDs" and "Reset all data" available on both admin pages.

@@ -4,7 +4,7 @@
     models stuff
     ~~~~~~~~~~~~
 
-    :copyleft: 2011 by the django-processinfo team, see AUTHORS for more details.
+    :copyleft: 2011-2012 by the django-processinfo team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
@@ -162,6 +162,13 @@ class ProcessInfoMiddleware(object):
                 site_stats.process_spawn += 1
             site_stats.update_informations()
             site_stats.save()
+
+            # Auto cleanup ProcessInfo table to protect against overloading.
+            queryset = ProcessInfo.objects.order_by('-lastupdate_time')
+            max_count = settings.PROCESSINFO.MAX_PROCESSINFO_COUNT
+            ids = tuple(queryset[max_count:].values_list('pk', flat=True))
+            if ids:
+                queryset.filter(pk__in=ids).delete()
 
 
     def process_request(self, request):

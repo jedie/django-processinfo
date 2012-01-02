@@ -15,7 +15,7 @@
         PROCESSINFO.ADD_INFO = True # e.g. to change a settings    
 
     
-    :copyleft: 2011 by the django-processinfo team, see AUTHORS for more details.
+    :copyleft: 2011-2012 by the django-processinfo team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
@@ -25,6 +25,8 @@ import sys
 # Used by a few dynamic settings:
 RUN_WITH_DEV_SERVER = "runserver" in sys.argv
 
+# Delete oldest ProcessInfo entries if max count exists:
+MAX_PROCESSINFO_COUNT = 100
 
 # Should the django-processinfo "time cost" info inserted in a html page?
 ADD_INFO = True
