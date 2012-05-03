@@ -104,6 +104,9 @@ Available django-processinfo settings can you found in [[https://github.com/jedi
 
 == history ==
 
+* v0.6.1
+** Tested also with django v1.4
+** change setup install_requires to Django v1.3.x - v1.4.x
 * v0.6.0
 ** Add "Reset all data" in object tools.
 ** Make "Remove dead PIDs" and "Reset all data" available on both admin pages.

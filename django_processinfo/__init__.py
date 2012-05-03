@@ -4,7 +4,7 @@
     version info
     ~~~~~~~~~~~~
 
-    :copyleft: 2011 by the django-processinfo team, see AUTHORS for more details.
+    :copyleft: 2011-2012 by the django-processinfo team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
@@ -15,7 +15,7 @@ import time
 import warnings
 
 
-__version__ = (0, 6, 0)
+__version__ = (0, 6, 1)
 
 
 VERSION_STRING = '.'.join(str(part) for part in __version__)
