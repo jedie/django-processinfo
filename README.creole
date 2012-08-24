@@ -36,11 +36,11 @@ Here [[http://www.pylucid.org/permalink/340/pylucid-screenshots/django-processin
 
 ----
 
-{{http://www.pylucid.org/media/screenshots_PyLucid/django-processinfo/django-processinfo20110819-1.png|Screenshot 1}}
+{{http://www.pylucid.org/media/pylucid.org/screenshots_PyLucid/django-processinfo/20110819_django-processinfo-1.png|Screenshot 1}}
 
 ----
 
-{{http://www.pylucid.org/media/screenshots_PyLucid/django-processinfo/django-processinfo20110819-2.png|Screenshot 2}}
+{{http://www.pylucid.org/media/pylucid.org/screenshots_PyLucid/django-processinfo/20110819_django-processinfo-2.png|Screenshot 2}}
 
 
 == install ==
