@@ -104,6 +104,8 @@ Available django-processinfo settings can you found in [[https://github.com/jedi
 
 == history ==
 
+* v0.6.3 - 24.08.2012
+** remove auto commit date from version
 * v0.6.2
 ** Auto cleanup ProcessInfo table to protect against overloading.
 ** Don't insert django-processinfo "time cost" info if response.status_code is not 200
