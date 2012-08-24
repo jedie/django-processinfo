@@ -4,7 +4,7 @@
     models stuff
     ~~~~~~~~~~~~
 
-    :copyleft: 2011 by the django-processinfo team, see AUTHORS for more details.
+    :copyleft: 2011-2012 by the django-processinfo team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
@@ -163,6 +163,13 @@ class ProcessInfoMiddleware(object):
             site_stats.update_informations()
             site_stats.save()
 
+            # Auto cleanup ProcessInfo table to protect against overloading.
+            queryset = ProcessInfo.objects.order_by('-lastupdate_time')
+            max_count = settings.PROCESSINFO.MAX_PROCESSINFO_COUNT
+            ids = tuple(queryset[max_count:].values_list('pk', flat=True))
+            if ids:
+                queryset.filter(pk__in=ids).delete()
+
 
     def process_request(self, request):
         """ save start time and database connections count. """
@@ -205,7 +212,7 @@ class ProcessInfoMiddleware(object):
 
         self._insert_statistics()
 
-        if settings.PROCESSINFO.ADD_INFO and mime_type == "text/html":
+        if response.status_code == 200 and settings.PROCESSINFO.ADD_INFO and mime_type == "text/html":
             # insert django-processinfo "time cost" info in a html response
             own = time.time() - self.own_start_time
             perc = own / self.response_time * 100
