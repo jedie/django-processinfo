@@ -147,5 +147,11 @@ If you like it, send some [[http://www.bitcoin.org/|Bitcoins]] to [[https://bloc
 
 | GitHub | https://github.com/jedie/django-processinfo
 | PyPi   | http://pypi.python.org/pypi/django-processinfo
-| IRC    | [[http://www.pylucid.org/permalink/304/irc-channel|#pylucid on freenode.net]]
 
+=== contact ===
+
+Come into the conversation, besides the github communication features:
+
+| Forum   | http://www.pylucid.org/en/forum/10/
+| IRC     | #pylucid on freenode.net (Yes, the PyLucid channel...)
+| webchat | http://webchat.freenode.net/?channels=pylucid
