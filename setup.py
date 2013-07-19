@@ -56,9 +56,9 @@ setup(
     maintainer_email="django-processinfo@jensdiemer.de",
     url="https://github.com/jedie/django-processinfo",
     packages=find_packages(),
-    include_package_data=True, # include files specified by MANIFEST.in
+    include_package_data=True,  # include files specified by MANIFEST.in
     install_requires=[
-        "Django>=1.3,<1.5", # Django v1.3.x - v1.4.x
+        "Django>=1.5,<1.6",
     ],
     zip_safe=False,
     classifiers=[
