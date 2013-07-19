@@ -11,13 +11,13 @@
   &rsaquo;
   [
   {% if cl.opts.verbose_name == "Site statistics" %}
-        <strong><a href="{% url admin:django_processinfo_sitestatistics_changelist %}">Site statistics</a></strong>
+        <strong><a href="{% url 'admin:django_processinfo_sitestatistics_changelist' %}">Site statistics</a></strong>
         |
-        <a href="{% url admin:django_processinfo_processinfo_changelist %}" style="text-decoration:underline">Process statistics</a>
+        <a href="{% url 'admin:django_processinfo_processinfo_changelist' %}" style="text-decoration:underline">Process statistics</a>
   {% else %}
-        <a href="{% url admin:django_processinfo_sitestatistics_changelist %}" style="text-decoration:underline">Site statistics</a>
+        <a href="{% url 'admin:django_processinfo_sitestatistics_changelist' %}" style="text-decoration:underline">Site statistics</a>
         |
-        <strong><a href="{% url admin:django_processinfo_processinfo_changelist %}">Process statistics</a></strong>
+        <strong><a href="{% url 'admin:django_processinfo_processinfo_changelist' %}">Process statistics</a></strong>
   {% endif %}
   ]
   
