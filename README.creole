@@ -102,6 +102,11 @@ But then, however, lacks statistical values on every cache hit!
 Available django-processinfo settings can you found in [[https://github.com/jedie/django-processinfo/blob/master/django_processinfo/app_settings.py|./django_processinfo/app_settings.py]]
 
 
+== Django compatibility
+
+We work on Django v1.5 compatibility in [[https://github.com/jedie/django-processinfo/tree/django1.5|django1.5 branch]].
+
+
 == history ==
 
 * v0.6.4 - 21.09.2012
