@@ -5,7 +5,7 @@
     distutils setup
     ~~~~~~~~~~~~~~~
 
-    :copyleft: 2010-2011 by the django-processinfo team, see AUTHORS for more details.
+    :copyleft: 2010-2014 by the django-processinfo team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
@@ -58,7 +58,7 @@ setup(
     packages=find_packages(),
     include_package_data=True, # include files specified by MANIFEST.in
     install_requires=[
-        "Django>=1.3,<1.5", # Django v1.3.x - v1.4.x
+        "Django>=1.3,<=1.5", # Django v1.3.x - v1.5.x
     ],
     zip_safe=False,
     classifiers=[
