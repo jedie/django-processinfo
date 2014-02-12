@@ -4,12 +4,12 @@
     version info
     ~~~~~~~~~~~~
 
-    :copyleft: 2011-2012 by the django-processinfo team, see AUTHORS for more details.
+    :copyleft: 2011-2014 by the django-processinfo team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
 
-__version__ = (0, 6, 4)
+__version__ = (0, 6, 5)
 
 
 VERSION_STRING = '.'.join(str(part) for part in __version__)
