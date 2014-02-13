@@ -16,7 +16,7 @@ import time
 import socket
 
 from django.conf import settings
-from django.conf.urls.defaults import patterns, url
+from django.conf.urls import patterns, url
 from django.contrib import admin
 from django.core.exceptions import PermissionDenied
 from django.db.models.aggregates import Avg, Sum, Min, Max

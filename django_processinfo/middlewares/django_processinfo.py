@@ -192,14 +192,17 @@ class ProcessInfoMiddleware(object):
 
         self.own_start_time = time.time()
 
-        mime_type = response["content-type"].split(";", 1)[0]
+        is_200 = response.status_code == 200  # e.g. exclude 304 (HttpResponseNotModified)
 
-        # Exclude this response by mime type
-        if settings.PROCESSINFO.ONLY_MIME_TYPES is not None:
-            # Capture only specific mime types 
-            if mime_type not in settings.PROCESSINFO.ONLY_MIME_TYPES:
-                # Don't capture this mime type
-                return response
+        if is_200:
+            mime_type = response["content-type"].split(";", 1)[0]
+
+            # Exclude this response by mime type
+            if settings.PROCESSINFO.ONLY_MIME_TYPES is not None:
+                # Capture only specific mime types
+                if mime_type not in settings.PROCESSINFO.ONLY_MIME_TYPES:
+                    # Don't capture this mime type
+                    return response
 
         # Exclude this response by settings.PROCESSINFO.URL_FILTER
         for url, recusive in self.url_filter:
@@ -212,7 +215,7 @@ class ProcessInfoMiddleware(object):
 
         self._insert_statistics()
 
-        if response.status_code == 200 and settings.PROCESSINFO.ADD_INFO and mime_type == "text/html":
+        if is_200 and settings.PROCESSINFO.ADD_INFO and mime_type == "text/html":
             # insert django-processinfo "time cost" info in a html response
             own = time.time() - self.own_start_time
             perc = own / self.response_time * 100
