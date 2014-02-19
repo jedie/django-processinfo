@@ -29,6 +29,10 @@ more info: http://www.python-forum.de/viewtopic.php?f=6&t=27168 (de)
 
 This only works, if **/proc/$$/status** exists. So only on unix/linux like platforms, yet.
 
+== TODO ==
+
+Add unittests
+
 
 == screenshots ==
 
@@ -101,8 +105,17 @@ But then, however, lacks statistical values on every cache hit!
 
 Available django-processinfo settings can you found in [[https://github.com/jedie/django-processinfo/blob/master/django_processinfo/app_settings.py|./django_processinfo/app_settings.py]]
 
+== Django compatibility
+
+|= Version |= Tested with:
+| v0.8.0   | django v1.6
+| v0.7.0   | django v1.5
+| v0.6.1   | django v1.4
 
 == history ==
+
+* v0.8.0.dev - 02.2014
+** Start testing with django 1.6
 * v0.7.0 - 12.02.2014
 ** Changes for django 1.5 support
 ** change setup install_requires to Django v1.3.x - v1.5.x

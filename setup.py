@@ -58,7 +58,7 @@ setup(
     packages=find_packages(),
     include_package_data=True, # include files specified by MANIFEST.in
     install_requires=[
-        "Django>=1.3,<1.6", # Django v1.3.x - v1.5.x
+        "Django>=1.3,<1.7", # Django v1.3.x - v1.6.x
     ],
     zip_safe=False,
     classifiers=[
