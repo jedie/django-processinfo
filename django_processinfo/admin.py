@@ -24,7 +24,7 @@ from django.http import HttpResponseRedirect
 from django.template.defaultfilters import filesizeformat
 from django.utils.translation import ugettext as _
 
-from django_processinfo import VERSION_STRING
+from django_processinfo import __version__
 from django_processinfo.models import SiteStatistics, ProcessInfo
 from django_processinfo.utils.average import average
 from django_processinfo.utils.human_time import timesince2, human_duration, \
@@ -258,7 +258,7 @@ class BaseModelAdmin(admin.ModelAdmin):
             "processor_time": human_duration(user_time_total + system_time_total),
             "loads": (user_time_total + system_time_total) / response_time_sum * 100,
 
-            "version_string": VERSION_STRING,
+            "version_string": __version__,
 
             "life_time_min": human_duration(life_time_min),
             "life_time_max": human_duration(life_time_max),
