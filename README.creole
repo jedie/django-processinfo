@@ -155,9 +155,11 @@ Available django-processinfo settings can you found in [[https://github.com/jedi
 ** first Version
 
 
-== donation ==
+== Donation
 
-If you like it, send some [[http://www.bitcoin.org/|Bitcoins]] to [[https://blockexplorer.com/address/1J2gfYNSjpB9P7EkpTVWUY3rWQCpbfjEhX|1J2gfYNSjpB9P7EkpTVWUY3rWQCpbfjEhX]] ;)
+* [[https://www.paypal.me/JensDiemer|paypal.me/JensDiemer]]
+* [[https://flattr.com/submit/auto?uid=jedie&url=https%3A%2F%2Fgithub.com%2Fjedie%2Fdjango-reversion-compare%2F|Flattr This!]]
+* Send [[http://www.bitcoin.org/|Bitcoins]] to [[https://blockexplorer.com/address/1823RZ5Md1Q2X5aSXRC5LRPcYdveCiVX6F|1823RZ5Md1Q2X5aSXRC5LRPcYdveCiVX6F]]
 
 
 == links ==
@@ -172,3 +174,4 @@ Come into the conversation, besides the github communication features:
 | Forum   | http://www.pylucid.org/en/forum/10/
 | IRC     | #pylucid on freenode.net (Yes, the PyLucid channel...)
 | webchat | http://webchat.freenode.net/?channels=pylucid
+
