@@ -1,4 +1,6 @@
-django-processinfo is a reuseable Django application for collecing information about the running server processes.
+= django-processinfo
+
+A reuseable Django application for collecing information about the running server processes.
 We try to cause as little additional overhead: django-processinfo creates most of the time only one database query to update the data.
 
 The most important data that django-processinfo will be captured:
@@ -22,7 +24,7 @@ What is it not:
 * collect infos which are found in e.g. apache.log
 * Its not a sourcecode profiler (read [[https://code.djangoproject.com/wiki/ProfilingDjango]])
 
-more info: http://www.python-forum.de/viewtopic.php?f=6&t=27168 (de)
+more info: https://www.python-forum.de/viewtopic.php?f=6&t=27168 (de)
 
 
 == limitation ==
