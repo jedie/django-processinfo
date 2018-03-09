@@ -4,24 +4,19 @@
     django-processinfo - utils
     ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    :copyleft: 2011 by the django-processinfo team, see AUTHORS for more details.
+    :copyleft: 2011-2018 by the django-processinfo team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
 import datetime
 
 
-if __name__ == "__main__":
-    print "run doctest:"
-    import os
-    os.environ["DJANGO_SETTINGS_MODULE"] = "django_processinfo.test_settings"
-
-
 from django.template.loader import render_to_string
 from django.utils.timesince import timesince
-from django.utils.tzinfo import LocalTimezone
+
 from django.utils.translation import ungettext
 from django.utils.translation import ugettext as _
+from pytz.reference import LocalTimezone
 
 
 def datetime2float(t):
@@ -93,7 +88,8 @@ def human_duration(t):
         ...
     TypeError: human_duration() argument must be timedelta, integer or float)
     
-    
+    >>> human_duration(None)
+    u'None'
     >>> human_duration(datetime.timedelta(microseconds=1000))
     u'1.0 ms'
     >>> human_duration(0.01)
@@ -115,7 +111,9 @@ def human_duration(t):
     >>> human_duration(2.54 * 60 * 60 * 24 * 365)
     u'2.5 years'
     """
-    if isinstance(t, datetime.timedelta):
+    if t is None:
+        return "None"
+    elif isinstance(t, datetime.timedelta):
         # timedelta.total_seconds() is new in Python 2.7
         t = datetime2float(t)
     elif not isinstance(t, (int, float)):
@@ -144,6 +142,4 @@ def human_duration(t):
     return "%(number).1f %(type)s" % {'number': count, 'type': name}
 
 
-if __name__ == "__main__":
-    import doctest
-    print doctest.testmod()
+

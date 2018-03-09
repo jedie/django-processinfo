@@ -4,49 +4,47 @@
     models stuff
     ~~~~~~~~~~~~
 
-    :copyleft: 2011 by the django-processinfo team, see AUTHORS for more details.
+    :copyleft: 2011-2018 by the django-processinfo team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
-from __future__ import division, absolute_import
+
 
 import os
+import socket
 import sys
 import time
-import socket
 
 from django.conf import settings
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 from django.contrib import admin
 from django.core.exceptions import PermissionDenied
-from django.db.models.aggregates import Avg, Sum, Min, Max
+from django.db.models.aggregates import Avg, Max, Min, Sum
 from django.http import HttpResponseRedirect
 from django.template.defaultfilters import filesizeformat
 from django.utils.translation import ugettext as _
-
 from django_processinfo import __version__
-from django_processinfo.models import SiteStatistics, ProcessInfo
+from django_processinfo.models import ProcessInfo, SiteStatistics
 from django_processinfo.utils.average import average
-from django_processinfo.utils.human_time import timesince2, human_duration, \
-    datetime2float
-from django_processinfo.utils.proc_info import meminfo, uptime_infomation, \
-    process_information
-
+from django_processinfo.utils.human_time import (datetime2float,
+                                                 human_duration, timesince2)
+from django_processinfo.utils.proc_info import (meminfo, process_information,
+                                                uptime_infomation)
 
 # Collect some static informations
 try:
     domain_name = socket.getfqdn()
-except Exception, err:
+except Exception as err:
     domain_name = "[Error: %s]" % err
     ip_addresses = "-"
 else:
     try:
         ip_addresses = ", ".join(socket.gethostbyname_ex(domain_name)[2])
-    except Exception, err:
+    except Exception as err:
         ip_addresses = "[Error: %s]" % err
 
 STATIC_INFORMATIONS = {
-    "python_version": "%s %s" % (" ".join(sys.subversion), sys.version),
+    "python_version": "%s" % sys.version,
     "sys_prefix": sys.prefix,
     "os_uname": " ".join(os.uname()),
 
@@ -222,6 +220,11 @@ class BaseModelAdmin(admin.ModelAdmin):
             # e.g. no SWAP used
             swap_perc = 0
 
+        try:
+            loads= (user_time_total + system_time_total) / response_time_sum * 100
+        except Exception as err:
+            loads="ERROR: %s" % err
+
         extra_context = {
             "site_count":site_count,
 
@@ -256,7 +259,7 @@ class BaseModelAdmin(admin.ModelAdmin):
             "user_time_total": human_duration(user_time_total), # total user mode time
             "system_time_total": human_duration(system_time_total), # total system mode time
             "processor_time": human_duration(user_time_total + system_time_total),
-            "loads": (user_time_total + system_time_total) / response_time_sum * 100,
+            "loads": loads,
 
             "version_string": __version__,
 
@@ -275,12 +278,16 @@ class BaseModelAdmin(admin.ModelAdmin):
             "updatetime": timesince2(updatetime),
 
             "script_filename": self.request.META.get("SCRIPT_FILENAME", "???"),
+            "server_info": "%s:%s" % (
+                self.request.META.get("SERVER_NAME", "???"),
+                self.request.META.get("SERVER_PORT", "???")
+            )
         }
         extra_context.update(STATIC_INFORMATIONS)
 
         try:
             extra_context["loadavg"] = os.getloadavg()
-        except OSError, err:
+        except OSError as err:
             extra_context["loadavg_err"] = "[Error: %s]" % err
 
         return super(BaseModelAdmin, self).changelist_view(request, extra_context=extra_context)
@@ -315,10 +322,10 @@ class BaseModelAdmin(admin.ModelAdmin):
 
     def get_urls(self):
         urls = super(BaseModelAdmin, self).get_urls()
-        my_urls = patterns('',
+        my_urls = [
             url(r'^remove_dead_entries/$', self.admin_site.admin_view(self.remove_dead_entries)),
             url(r'^reset/$', self.admin_site.admin_view(self.reset)),
-        )
+        ]
         return my_urls + urls
 
 class SiteStatisticsAdmin(BaseModelAdmin):

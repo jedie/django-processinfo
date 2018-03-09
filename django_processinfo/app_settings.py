@@ -32,8 +32,8 @@ MAX_PROCESSINFO_COUNT = 100
 ADD_INFO = True
 
 # Substring for replace with INFO_FORMATTER
-INFO_SEARCH_STRING = "</body>"
-INFO_FORMATTER = "<small><p>django-processinfo: %(own).1f ms of %(total).1f ms (%(perc).1f%%)</p></small></body>"
+INFO_SEARCH_STRING = b"</body>"
+INFO_FORMATTER = "<small><p>django-processinfo: {own:.1f} ms of {total:.1f} ms ({perc:.1f}%)</p></small></body>"
 
 
 # ONLY_MIME_TYPES == None or tuple

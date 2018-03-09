@@ -11,7 +11,7 @@
 """
 
 
-from __future__ import with_statement
+
 import datetime
 
 
@@ -57,7 +57,7 @@ def process_information(pid=None):
                 else:
                     try:
                         result.append((key, int(values)))
-                    except ValueError, err:
+                    except ValueError as err:
                         result.append((key, values))
                 continue
             elif length == 2:
@@ -101,7 +101,7 @@ def meminfo():
             if length == 1:
                 try:
                     result.append((key, int(values)))
-                except ValueError, err:
+                except ValueError as err:
                     result.append((key, values))
                 continue
             elif length == 2:
@@ -136,19 +136,19 @@ if __name__ == "__main__":
 #    pprint.pprint(p)
     try:
         p = dict(process_information())
-    except IOError, err:
-        print "Error: %s" % err
+    except IOError as err:
+        print("Error: %s" % err)
     else:
-        print "Peak virtual memory size: %i Bytes" % p["VmPeak"]
+        print("Peak virtual memory size: %i Bytes" % p["VmPeak"])
 
 
 #    m = meminfo()
 #    pprint.pprint(m)
     try:
         m = dict(meminfo())
-    except IOError, err:
-        print "Error: %s" % err
+    except IOError as err:
+        print("Error: %s" % err)
     else:
-        print "free: %i Bytes" % m["MemFree"]
+        print("free: %i Bytes" % m["MemFree"])
 
-    print "uptime_infomation():", uptime_infomation()
+    print("uptime_infomation():", uptime_infomation())

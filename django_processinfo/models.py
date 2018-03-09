@@ -4,14 +4,13 @@
     models stuff
     ~~~~~~~~~~~~
 
-    :copyleft: 2011 by the django-processinfo team, see AUTHORS for more details.
+    :copyleft: 2011-2018 by the django-processinfo team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
-from __future__ import division, absolute_import
-
 import os
 
+from django.conf import settings
 from django.db import models
 from django.contrib.sites.models import Site
 from django.utils.translation import ugettext_lazy as _
@@ -30,10 +29,9 @@ class BaseModel(models.Model):
 
 class SiteStatistics(BaseModel):
     """
-    Obverall statistics seperated per settings.SITE_ID
+    Overall statistics separated per settings.SITE_ID
     """
-    site = models.ForeignKey(Site, default=Site.objects.get_current,
-        primary_key=True,
+    site = models.OneToOneField(Site, primary_key=True, db_index=True, default=settings.SITE_ID,
         help_text=_("settings.SITE_ID")
     )
 
@@ -61,7 +59,7 @@ class SiteStatistics(BaseModel):
         return living_pids
 
     def __unicode__(self):
-        return u"SiteStatistics for %s" % self.site
+        return "SiteStatistics for %s" % self.site
 
     class Meta:
         verbose_name_plural = verbose_name = "Site statistics"
@@ -122,7 +120,7 @@ class ProcessInfo(BaseModel):
     objects = ProcessInfoManager()
 
     pid = models.SmallIntegerField(
-        primary_key=True,
+        primary_key=True, db_index=True,
         help_text=_("process ID.")
     )
     alive = models.NullBooleanField(null=True, blank=True,
@@ -132,7 +130,7 @@ class ProcessInfo(BaseModel):
             " (We don't check the state in every request!)"
         )
     )
-    site = models.ForeignKey(Site, default=Site.objects.get_current,
+    site = models.ForeignKey(Site, default=settings.SITE_ID,
         help_text=_("settings.SITE_ID")
     )
 

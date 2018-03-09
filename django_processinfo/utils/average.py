@@ -4,7 +4,7 @@
     django-processinfo - utils
     ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    :copyleft: 2011 by the django-processinfo team, see AUTHORS for more details.
+    :copyleft: 2011-2018 by the django-processinfo team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
@@ -24,6 +24,3 @@ def average(old_avg, current_value, count):
         return current_value
     return (float(old_avg) * count + current_value) / (count + 1)
 
-if __name__ == "__main__":
-    import doctest
-    print doctest.testmod()

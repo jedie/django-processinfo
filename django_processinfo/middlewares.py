@@ -4,11 +4,11 @@
     models stuff
     ~~~~~~~~~~~~
 
-    :copyleft: 2011-2012 by the django-processinfo team, see AUTHORS for more details.
+    :copyleft: 2011-2018 by the django-processinfo team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
-from __future__ import division, absolute_import
+
 import os
 import sys
 import time
@@ -17,6 +17,7 @@ from django.conf import settings
 from django.contrib.sites.models import Site
 from django.core import urlresolvers
 from django.db import connection
+from django.utils.deprecation import MiddlewareMixin
 
 from django_processinfo.models import SiteStatistics, ProcessInfo
 from django_processinfo.utils.average import average
@@ -36,8 +37,10 @@ def get_processor_times():
     return (user + child_user, system + child_system)
 
 
-class ProcessInfoMiddleware(object):
-    def __init__(self):
+class ProcessInfoMiddleware(MiddlewareMixin):
+    def __init__(self, get_response=None):
+        self.get_response = get_response
+
         self.url_filter = []
         for url_name, recusive in settings.PROCESSINFO.URL_FILTER:
             if isinstance(url_name, dict):
@@ -50,7 +53,7 @@ class ProcessInfoMiddleware(object):
             except Exception:
                 etype, evalue, etb = sys.exc_info()
                 evalue = etype("Wrong django-processinfo URL_FILTER %r: %s" % (url_name, evalue))
-                raise etype, evalue, etb
+                raise etype(evalue).with_traceback(etb)
 
             self.url_filter.append((url, recusive))
         self.url_filter = tuple(self.url_filter)
@@ -170,17 +173,21 @@ class ProcessInfoMiddleware(object):
             if ids:
                 queryset.filter(pk__in=ids).delete()
 
-
     def process_request(self, request):
         """ save start time and database connections count. """
         self.start_time = time.time()
+
         # We would like to accumulate only the times from processes
         # which are included in statistics. So we not use the absolute
         # processor times.
         self.start_user_time, self.start_system_time = get_processor_times()
+
         if settings.DEBUG:
             # get number of db queries before we do anything
             self.old_queries = len(connection.queries)
+
+        response = self.get_response(request)
+        return response
 
 
     def process_exception(self, request, exception):
@@ -221,11 +228,11 @@ class ProcessInfoMiddleware(object):
             perc = own / self.response_time * 100
             response.content = response.content.replace(
                 settings.PROCESSINFO.INFO_SEARCH_STRING,
-                settings.PROCESSINFO.INFO_FORMATTER % {
-                    "own":own * 1000,
-                    "total":self.response_time * 1000,
-                    "perc":perc,
-                }
+                bytes(settings.PROCESSINFO.INFO_FORMATTER.format(
+                    own = own * 1000,
+                    total = self.response_time * 1000,
+                    perc = perc,
+                ), encoding="UTF-8")
             )
 
         return response

@@ -74,8 +74,8 @@ INSTALLED_APPS = (
 	...
 )
 
-MIDDLEWARE_CLASSES = (
-    'django_processinfo.middlewares.django_processinfo.ProcessInfoMiddleware',
+MIDDLEWARE = (
+    'django_processinfo.middlewares.ProcessInfoMiddleware',
     ...
 )
 
@@ -107,15 +107,15 @@ Available django-processinfo settings can you found in [[https://github.com/jedi
 
 == Django compatibility
 
-|= Version |= Tested with:
-| v0.8.0   | django v1.6
-| v0.7.0   | django v1.5
-| v0.6.1   | django v1.4
+|= Version |= Python  |= Django
+| v0.8.0   | python 3 | django v1.11 LTS
+| v0.7.0   | python 2 | django v1.5
+| v0.6.1   | python 2 | django v1.4
 
 == history ==
 
-* v0.8.0.dev - 02.2014
-** Start testing with django 1.6
+* v0.8.0 - *dev*
+** Updates for Python v3 and Django 1.11
 * v0.7.0 - 12.02.2014
 ** Changes for django 1.5 support
 ** change setup install_requires to Django v1.3.x - v1.5.x
