@@ -36,15 +36,16 @@ Add unittests
 
 == screenshots ==
 
-Here [[http://www.pylucid.org/permalink/340/pylucid-screenshots/django-processinfo/|some screenshots (from v0.2 - 19.08.2011)]] how it looks like:
+
+Here [[https://github.com/jedie/jedie.github.io/tree/master/screenshots/django-processinfo|some screenshots (from v0.2 - 19.08.2011)]] how it looks like:
 
 ----
 
-{{http://www.pylucid.org/media/pylucid.org/screenshots_PyLucid/django-processinfo/20110819_django-processinfo-1.png|Screenshot 1}}
+{{https://raw.githubusercontent.com/jedie/jedie.github.io/master/screenshots/django-processinfo/20110819_django-processinfo-1.png|Screenshot 1}}
 
 ----
 
-{{http://www.pylucid.org/media/pylucid.org/screenshots_PyLucid/django-processinfo/20110819_django-processinfo-2.png|Screenshot 2}}
+{{https://raw.githubusercontent.com/jedie/jedie.github.io/master/screenshots/django-processinfo/20110819_django-processinfo-2.png|Screenshot 2}}
 
 
 == install ==
@@ -114,12 +115,13 @@ Available django-processinfo settings can you found in [[https://github.com/jedi
 
 == history ==
 
-* v0.8.0 - *dev*
+
+* v0.8.0 *dev* - [[https://github.com/jedie/django-processinfo/compare/v0.7.1...master|compare v0.7.1...master]]
+* v0.8.0 - 09.03.2018 - [[https://github.com/jedie/django-processinfo/compare/v0.7.1...master|compare v0.7.1...master]]
 ** Updates for Python v3 and Django 1.11
-* v0.7.0 - 12.02.2014
+* v0.7.1 - 20.08.2015 - [[https://github.com/jedie/django-processinfo/compare/v0.6.3...v0.7.1|compare v0.6.3...v0.7.1]]
 ** Changes for django 1.5 support
 ** change setup install_requires to Django v1.3.x - v1.5.x
-* v0.6.4 - 21.09.2012
 ** Bugfix in templates: missed i18n
 * v0.6.3 - 24.08.2012
 ** remove auto commit date from version
