@@ -5,47 +5,71 @@
     distutils setup
     ~~~~~~~~~~~~~~~
 
-    :copyleft: 2010-2015 by the django-processinfo team, see AUTHORS for more details.
+    :copyleft: 2010-2018 by the django-processinfo team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
+from __future__ import unicode_literals, print_function, absolute_import
 
 import os
-import sys
-import subprocess
 import shutil
+import sys
+import distutils
+import subprocess
 
 from setuptools import setup, find_packages
-from django_processinfo import __version__
 
 
-PACKAGE_ROOT = os.path.dirname(os.path.abspath(__file__))
+def read(*args):
+    return open(os.path.join(os.path.dirname(__file__), *args)).read()
 
 
+class BaseCommand(distutils.cmd.Command):
+    user_options = []
+    def initialize_options(self): pass
+    def finalize_options(self): pass
+
+
+class ToxTestCommand(BaseCommand):
+    """Distutils command to run tests via tox: 'python setup.py tox'."""
+    description = "Run tests via 'tox'."
+
+    def run(self):
+        self.announce("Running tests with 'tox'...", level=distutils.log.INFO)
+        returncode = subprocess.call(['tox'])
+        sys.exit(returncode)
+
+
+class TestCommand(BaseCommand):
+    """Distutils command to run tests via py.test: 'python setup.py test'."""
+    description = "Run tests via 'py.test'."
+
+    def run(self):
+        self.announce("Running tests...", level=distutils.log.INFO)
+        returncode = subprocess.call(['pytest'])
+        sys.exit(returncode)
+
+
+__version__="<unknown>"
+exec(read('django_processinfo', 'version.py'))
+
+
+PACKAGE_ROOT = os.path.os.path.dirname(os.path.abspath(__file__))
+
+
+#_____________________________________________________________________________
 # convert creole to ReSt on-the-fly, see also:
-# https://code.google.com/p/python-creole/wiki/UseInSetup
-try:
-    from creole.setup_utils import get_long_description
-except ImportError:
-    if "register" in sys.argv or "sdist" in sys.argv or "--long-description" in sys.argv:
-        etype, evalue, etb = sys.exc_info()
-        evalue = etype("%s - Please install python-creole >= v0.8 -  e.g.: pip install python-creole" % evalue)
-        raise etype, evalue, etb
-    long_description = None
-else:
-    long_description = get_long_description(PACKAGE_ROOT)
-
-
-def get_authors():
-    authors = []
-    try:
-        f = file(os.path.join(PACKAGE_ROOT, "AUTHORS"), "r")
-    except Exception, err:
-        return ["[Error reading AUTHORS file: %s]" % err]
-    for line in f:
-        if line.startswith('*'):
-            authors.append(line[1:].strip())
-    f.close()
-    return ", ".join(authors)
+# https://github.com/jedie/python-creole/wiki/Use-In-Setup
+long_description = None
+for arg in ("test", "check", "register", "sdist", "--long-description"):
+    if arg in sys.argv:
+        try:
+            from creole.setup_utils import get_long_description
+        except ImportError as err:
+            raise ImportError("%s - Please install python-creole - e.g.: pip install python-creole" % err)
+        else:
+            long_description = get_long_description(PACKAGE_ROOT)
+        break
+#----------------------------------------------------------------------------
 
 
 if "publish" in sys.argv:
@@ -66,11 +90,12 @@ if "publish" in sys.argv:
     TODO: Look at: https://github.com/zestsoftware/zest.releaser
 
     Source: https://github.com/jedie/python-code-snippets/blob/master/CodeSnippets/setup_publish.py
-    copyleft 2015 Jens Diemer - GNU GPL v2+
+    copyleft 2015-2017 Jens Diemer - GNU GPL v2+
     """
     if sys.version_info[0] == 2:
         input = raw_input
 
+    import_error = False
     try:
         # Test if wheel is installed, otherwise the user will only see:
         #   error: invalid command 'bdist_wheel'
@@ -81,7 +106,7 @@ if "publish" in sys.argv:
         print("e.g.:")
         print("    ~/your/env/$ source bin/activate")
         print("    ~/your/env/$ pip install wheel")
-        sys.exit(-1)
+        import_error = True
 
     try:
         import twine
@@ -91,6 +116,9 @@ if "publish" in sys.argv:
         print("e.g.:")
         print("    ~/your/env/$ source bin/activate")
         print("    ~/your/env/$ pip install twine")
+        import_error = True
+
+    if import_error:
         sys.exit(-1)
 
     def verbose_check_output(*args):
@@ -109,9 +137,14 @@ if "publish" in sys.argv:
         print("\tCall: %r\n" % " ".join(args))
         subprocess.check_call(args, universal_newlines=True)
 
+    def confirm(txt):
+        print("\n%s" % txt)
+        if input("\nPublish anyhow? (Y/N)").lower() not in ("y", "j"):
+            print("Bye.")
+            sys.exit(-1)
+
     if "dev" in __version__:
-        print("\nERROR: Version contains 'dev': v%s\n" % __version__)
-        sys.exit(-1)
+        confirm("WARNING: Version contains 'dev': v%s\n" % __version__)
 
     print("\nCheck if we are on 'master' branch:")
     call_info, output = verbose_check_output("git", "branch", "--no-color")
@@ -119,11 +152,7 @@ if "publish" in sys.argv:
     if "* master" in output:
         print("OK")
     else:
-        print("\nNOTE: It seems you are not on 'master':")
-        print(output)
-        if input("\nPublish anyhow? (Y/N)").lower() not in ("y", "j"):
-            print("Bye.")
-            sys.exit(-1)
+        confirm("\nNOTE: It seems you are not on 'master':\n%s" % output)
 
     print("\ncheck if if git repro is clean:")
     call_info, output = verbose_check_output("git", "status", "--porcelain")
@@ -147,6 +176,14 @@ if "publish" in sys.argv:
         sys.exit(-1)
     verbose_check_call("git", "push")
 
+    print("\nRun './setup.py check':")
+    call_info, output = verbose_check_output("./setup.py", "check")
+    if "warning" in output:
+        print(output)
+        confirm("Warning found!")
+    else:
+        print("OK")
+
     print("\nCleanup old builds:")
     def rmtree(path):
         path = os.path.abspath(path)
@@ -168,8 +205,16 @@ if "publish" in sys.argv:
         log.write(output)
     print("Build output is in log file: %r" % log_filename)
 
-    print("\ngit tag version (will raise a error of tag already exists)")
-    verbose_check_call("git", "tag", "v%s" % __version__)
+    git_tag="v%s" % __version__
+
+    print("\ncheck git tag")
+    call_info, output = verbose_check_output("git", "log", "HEAD..origin/master", "--oneline")
+    if git_tag in output:
+        print("\n *** ERROR: git tag %r already exists!" % git_tag)
+        print(output)
+        sys.exit(-1)
+    else:
+        print("OK")
 
     print("\nUpload with twine:")
     twine_args = sys.argv[1:]
@@ -179,10 +224,33 @@ if "publish" in sys.argv:
     from twine.commands.upload import main as twine_upload
     twine_upload(twine_args)
 
+    print("\ngit tag version")
+    verbose_check_call("git", "tag", git_tag)
+
     print("\ngit push tag to server")
     verbose_check_call("git", "push", "--tags")
 
     sys.exit(0)
+
+
+classifiers = """
+Development Status :: 4 - Beta
+# Development Status :: 5 - Production/Stable
+Intended Audience :: Developers
+License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)
+Operating System :: POSIX
+Programming Language :: Python
+Programming Language :: Python :: 3
+Programming Language :: Python :: 3.5
+Programming Language :: Python :: 3.6
+Programming Language :: Python :: 3 :: Only
+Programming Language :: Python :: Implementation :: CPython
+Programming Language :: Python :: Implementation :: PyPy
+Framework :: Django
+Framework :: Django :: 1.11
+Framework :: Django :: 1.8
+Topic :: Internet
+"""
 
 
 setup(
@@ -190,32 +258,18 @@ setup(
     version=__version__,
     description='django-processinfo is a Django application to collect information about the running server processes.',
     long_description=long_description,
-    author=get_authors(),
-    maintainer="Jens Diemer",
-    maintainer_email="django-processinfo@jensdiemer.de",
-    url="https://github.com/jedie/django-processinfo",
+    author='Jens Diemer',
+    author_email='django-cms-tools@jensdiemer.de',
+    url='https://github.com/jedie/django-cms-tools',
+    license="GNU General Public License v3.0 or above",
     packages=find_packages(),
-    include_package_data=True,  # include files specified by MANIFEST.in
-    install_requires=[
-        "Django>=1.4,<1.9",
-    ],
-    zip_safe=False,
-    classifiers=[
-       "Development Status :: 4 - Beta",
-#        "Development Status :: 5 - Production/Stable",
-        "Environment :: Web Environment",
-        "Intended Audience :: Developers",
-#        "Intended Audience :: Education",
-#        "Intended Audience :: End Users/Desktop",
-        "License :: OSI Approved :: GNU General Public License (GPL)",
-        "Programming Language :: Python",
-        'Framework :: Django',
-        "Topic :: Database :: Front-Ends",
-        "Topic :: Documentation",
-        "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
-        "Topic :: Internet :: WWW/HTTP :: WSGI :: Application",
-#        "Operating System :: OS Independent",
-        "Operating System :: POSIX",
-        "Operating System :: Unix",
-    ]
+    classifiers=[c.strip() for c in classifiers.splitlines()
+                 if c.strip() and not c.startswith('#')],
+    python_requires='>=3.5',
+    install_requires=["django"],
+    include_package_data=True,
+    cmdclass={
+        'test': TestCommand,
+        'tox': ToxTestCommand,
+    }
 )
