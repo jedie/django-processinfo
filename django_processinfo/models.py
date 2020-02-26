@@ -32,6 +32,7 @@ class SiteStatistics(BaseModel):
     Overall statistics separated per settings.SITE_ID
     """
     site = models.OneToOneField(Site, primary_key=True, db_index=True, default=settings.SITE_ID,
+        on_delete=models.CASCADE,
         help_text=_("settings.SITE_ID")
     )
 
@@ -131,6 +132,7 @@ class ProcessInfo(BaseModel):
         )
     )
     site = models.ForeignKey(Site, default=settings.SITE_ID,
+        on_delete=models.CASCADE,
         help_text=_("settings.SITE_ID")
     )
 

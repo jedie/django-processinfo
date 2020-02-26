@@ -111,6 +111,7 @@ Available django-processinfo settings can you found in [[https://github.com/jedi
 == Django compatibility
 
 |= Version |= Python  |= Django
+| v0.9.0   | python 3 | django v2.2 LTS
 | v0.8.0   | python 3 | django v1.11 LTS
 | v0.7.0   | python 2 | django v1.5
 | v0.6.1   | python 2 | django v1.4
@@ -118,9 +119,11 @@ Available django-processinfo settings can you found in [[https://github.com/jedi
 == history ==
 
 
-* *dev* - [[https://github.com/jedie/django-processinfo/compare/v0.8.0...master|compare v0.8.0...master]]
+* *dev* - [[https://github.com/jedie/django-processinfo/compare/v0.9.0...master|compare v0.9.0...master]]
 ** TBC
-* v0.8.0 - 09.03.2018 - [[https://github.com/jedie/django-processinfo/compare/v0.7.1...master|compare v0.7.1...master]]
+* v0.9.0 - 26.02.2020 - [[https://github.com/jedie/django-processinfo/compare/v0.8.0...v0.9.0|compare v0.8.0...v0.9.0]]
+** Updates for Django 2.2
+* v0.8.0 - 09.03.2018 - [[https://github.com/jedie/django-processinfo/compare/v0.7.1...v0.8.0|compare v0.7.1...v0.8.0]]
 ** Updates for Python v3 and Django 1.11
 * v0.7.1 - 20.08.2015 - [[https://github.com/jedie/django-processinfo/compare/v0.6.3...v0.7.1|compare v0.6.3...v0.7.1]]
 ** Changes for django 1.5 support
