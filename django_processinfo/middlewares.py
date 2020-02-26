@@ -15,8 +15,8 @@ import time
 
 from django.conf import settings
 from django.contrib.sites.models import Site
-from django.core import urlresolvers
 from django.db import connection
+from django.urls import reverse
 from django.utils.deprecation import MiddlewareMixin
 
 from django_processinfo.models import SiteStatistics, ProcessInfo
@@ -49,7 +49,7 @@ class ProcessInfoMiddleware(MiddlewareMixin):
                 kwargs = {"viewname":url_name}
             try:
 
-                url = urlresolvers.reverse(**kwargs)
+                url = reverse(**kwargs)
             except Exception:
                 etype, evalue, etb = sys.exc_info()
                 evalue = etype("Wrong django-processinfo URL_FILTER %r: %s" % (url_name, evalue))
