@@ -1,20 +1,18 @@
-# coding:utf-8
-
-"""   
+"""
     django-processinfo app settings
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    
+
     All own settings for the django-processinfo app.
-    
+
     **IMPORTANT:**
         You should not edit this file!
-        
-    Add this into your settings.py:
-    
-        from django_processinfo import app_settings as PROCESSINFO
-        PROCESSINFO.ADD_INFO = True # e.g. to change a settings    
 
-    
+    Add this into your settings.py:
+
+        from django_processinfo import app_settings as PROCESSINFO
+        PROCESSINFO.ADD_INFO = True # e.g. to change a settings
+
+
     :copyleft: 2011-2012 by the django-processinfo team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """

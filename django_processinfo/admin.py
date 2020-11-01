@@ -1,5 +1,3 @@
-# coding: utf-8
-
 """
     models stuff
     ~~~~~~~~~~~~
@@ -7,7 +5,6 @@
     :copyleft: 2011-2018 by the django-processinfo team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
-
 
 
 import os
@@ -22,29 +19,29 @@ from django.core.exceptions import PermissionDenied
 from django.db.models.aggregates import Avg, Max, Min, Sum
 from django.http import HttpResponseRedirect
 from django.template.defaultfilters import filesizeformat
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
+
 from django_processinfo import __version__
 from django_processinfo.models import ProcessInfo, SiteStatistics
 from django_processinfo.utils.average import average
-from django_processinfo.utils.human_time import (datetime2float,
-                                                 human_duration, timesince2)
-from django_processinfo.utils.proc_info import (meminfo, process_information,
-                                                uptime_infomation)
+from django_processinfo.utils.human_time import datetime2float, human_duration, timesince2
+from django_processinfo.utils.proc_info import meminfo, process_information, uptime_infomation
+
 
 # Collect some static informations
 try:
     domain_name = socket.getfqdn()
 except Exception as err:
-    domain_name = "[Error: %s]" % err
+    domain_name = f"[Error: {err}]"
     ip_addresses = "-"
 else:
     try:
         ip_addresses = ", ".join(socket.gethostbyname_ex(domain_name)[2])
     except Exception as err:
-        ip_addresses = "[Error: %s]" % err
+        ip_addresses = f"[Error: {err}]"
 
 STATIC_INFORMATIONS = {
-    "python_version": "%s" % sys.version,
+    "python_version": f"{sys.version}",
     "sys_prefix": sys.prefix,
     "os_uname": " ".join(os.uname()),
 
@@ -61,7 +58,7 @@ class BaseModelAdmin(admin.ModelAdmin):
     start_time2.allow_tags = True
 
     def changelist_view(self, request, extra_context=None):
-        self.request = request # work-a-round for https://code.djangoproject.com/ticket/13659
+        self.request = request  # work-a-round for https://code.djangoproject.com/ticket/13659
 
         site_count = 0
         first_start_time = None
@@ -93,8 +90,8 @@ class BaseModelAdmin(admin.ModelAdmin):
         response_time_avg = None
         response_time_sum = 0.0
 
-        user_time_total = 0.0 # total user mode time
-        system_time_total = 0.0 # total system mode time     
+        user_time_total = 0.0  # total user mode time
+        system_time_total = 0.0  # total system mode time
 
         self.aggregate_data = {}
         queryset = SiteStatistics.objects.all()
@@ -110,7 +107,7 @@ class BaseModelAdmin(admin.ModelAdmin):
             for pid in living_pids:
                 try:
                     p = dict(process_information(pid))
-                except IOError: # Process dead -> mark as dead
+                except OSError:  # Process dead -> mark as dead
                     process = ProcessInfo.objects.get(pid=pid)
                     process.alive = False
                     process.save()
@@ -153,8 +150,8 @@ class BaseModelAdmin(admin.ModelAdmin):
                 Avg("response_time_max"),
                 Sum("response_time_sum"),
 
-                Sum("user_time_total"), # total user mode time
-                Sum("system_time_total"), # total system mode time                
+                Sum("user_time_total"),  # total user mode time
+                Sum("system_time_total"),  # total system mode time
             )
             data["living_process_count"] = living_process_count
             self.aggregate_data[site] = data
@@ -163,7 +160,7 @@ class BaseModelAdmin(admin.ModelAdmin):
             exception_count += data["exception_count__sum"] or 0
 
             # VmRSS
-            memory_min_avg += (data["memory_min__avg"]or 0) * process_count_avg
+            memory_min_avg += (data["memory_min__avg"] or 0) * process_count_avg
             memory_avg += (data["memory_avg__avg"] or 0) * process_count_avg
             memory_max_avg += (data["memory_max__avg"] or 0) * process_count_avg
 
@@ -189,12 +186,12 @@ class BaseModelAdmin(admin.ModelAdmin):
             )
             response_time_sum += data["response_time_sum__sum"] or 0
 
-            user_time_total += data["user_time_total__sum"] or 0 # total user mode time
-            system_time_total += data["system_time_total__sum"] or 0 # total system mode time   
+            user_time_total += data["user_time_total__sum"] or 0  # total user mode time
+            system_time_total += data["system_time_total__sum"] or 0  # total system mode time
 
         # Calculate the process life times
         # timedelta.total_seconds() is new in Python 2.7
-        if not life_time_values: # First request with empty data
+        if not life_time_values:  # First request with empty data
             life_time_min = 0
             life_time_max = 0
             life_time_avg = 0
@@ -204,7 +201,7 @@ class BaseModelAdmin(admin.ModelAdmin):
             life_time_max = max(life_time_values)
             life_time_avg = sum(life_time_values) / len(life_time_values)
 
-        # get information from /proc/meminfo    
+        # get information from /proc/meminfo
         meminfo_dict = dict(meminfo())
         swap_used = meminfo_dict["SwapTotal"] - meminfo_dict["SwapFree"]
         mem_free = meminfo_dict["MemFree"] + meminfo_dict["Buffers"] + meminfo_dict["Cached"]
@@ -221,26 +218,26 @@ class BaseModelAdmin(admin.ModelAdmin):
             swap_perc = 0
 
         try:
-            loads= (user_time_total + system_time_total) / response_time_sum * 100
+            loads = (user_time_total + system_time_total) / response_time_sum * 100
         except Exception as err:
-            loads="ERROR: %s" % err
+            loads = f"ERROR: {err}"
 
         extra_context = {
-            "site_count":site_count,
+            "site_count": site_count,
 
             "first_start_time": first_start_time,
 
-            "process_count_current":process_count_current,
-            "process_spawn":process_spawn,
-            "process_count_max":process_count_max,
+            "process_count_current": process_count_current,
+            "process_spawn": process_spawn,
+            "process_count_max": process_count_max,
             "process_count_avg": process_count_avg,
 
             "request_count": request_count,
             "exception_count": exception_count,
 
-            "memory_min_avg":memory_min_avg,
-            "memory_max_avg":memory_max_avg,
-            "memory_avg":memory_avg,
+            "memory_min_avg": memory_min_avg,
+            "memory_max_avg": memory_max_avg,
+            "memory_avg": memory_avg,
 
             "vm_peak_min_avg": vm_peak_min_avg,
             "vm_peak_max_avg": vm_peak_max_avg,
@@ -256,8 +253,8 @@ class BaseModelAdmin(admin.ModelAdmin):
             "response_time_avg": human_duration(response_time_avg),
             "response_time_sum": human_duration(response_time_sum),
 
-            "user_time_total": human_duration(user_time_total), # total user mode time
-            "system_time_total": human_duration(system_time_total), # total system mode time
+            "user_time_total": human_duration(user_time_total),  # total user mode time
+            "system_time_total": human_duration(system_time_total),  # total system mode time
             "processor_time": human_duration(user_time_total + system_time_total),
             "loads": loads,
 
@@ -278,19 +275,16 @@ class BaseModelAdmin(admin.ModelAdmin):
             "updatetime": timesince2(updatetime),
 
             "script_filename": self.request.META.get("SCRIPT_FILENAME", "???"),
-            "server_info": "%s:%s" % (
-                self.request.META.get("SERVER_NAME", "???"),
-                self.request.META.get("SERVER_PORT", "???")
-            )
+            "server_info": f"{self.request.META.get('SERVER_NAME', '???')}:{self.request.META.get('SERVER_PORT', '???')}"
         }
         extra_context.update(STATIC_INFORMATIONS)
 
         try:
             extra_context["loadavg"] = os.getloadavg()
         except OSError as err:
-            extra_context["loadavg_err"] = "[Error: %s]" % err
+            extra_context["loadavg_err"] = f"[Error: {err}]"
 
-        return super(BaseModelAdmin, self).changelist_view(request, extra_context=extra_context)
+        return super().changelist_view(request, extra_context=extra_context)
 
     def remove_dead_entries(self, request):
         """ remove all dead ProcessInfo entries """
@@ -321,12 +315,13 @@ class BaseModelAdmin(admin.ModelAdmin):
         return HttpResponseRedirect("..")
 
     def get_urls(self):
-        urls = super(BaseModelAdmin, self).get_urls()
+        urls = super().get_urls()
         my_urls = [
             url(r'^remove_dead_entries/$', self.admin_site.admin_view(self.remove_dead_entries)),
             url(r'^reset/$', self.admin_site.admin_view(self.reset)),
         ]
         return my_urls + urls
+
 
 class SiteStatisticsAdmin(BaseModelAdmin):
     def sum_memory_avg(self, obj):
@@ -364,11 +359,7 @@ class SiteStatisticsAdmin(BaseModelAdmin):
 
     def process_count(self, obj):
         living_process_count = self.aggregate_data[obj.site]["living_process_count"]
-        return "%s / %.1f / %s" % (
-            living_process_count,
-            round(obj.process_count_avg, 1),
-            obj.process_count_max
-        )
+        return f"{living_process_count} / {round(obj.process_count_avg, 1):.1f} / {obj.process_count_max}"
     process_count.short_description = _("Living processes (current/avg/max)")
 
     def threads_info(self, obj):
@@ -389,6 +380,7 @@ class SiteStatisticsAdmin(BaseModelAdmin):
     ]
 #    if not settings.DEBUG:
 #        del(list_display[list_display.index("db_query_count_avg")])
+
 
 admin.site.register(SiteStatistics, SiteStatisticsAdmin)
 
@@ -428,7 +420,7 @@ class ProcessInfoAdmin(BaseModelAdmin):
     def alive2(self, obj):
         """ Check if current process is active and mark it if it's dead. """
         active = os.path.exists("/proc/%i/status" % obj.pid)
-        if not active and obj.alive != False:
+        if not active and obj.alive:
             obj.alive = False
             obj.save()
             if settings.DEBUG:
@@ -455,5 +447,6 @@ class ProcessInfoAdmin(BaseModelAdmin):
     if not settings.DEBUG:
         del(list_display[list_display.index("db_query_count_avg")])
     #actions = [remove_dead_entries]
+
 
 admin.site.register(ProcessInfo, ProcessInfoAdmin)
