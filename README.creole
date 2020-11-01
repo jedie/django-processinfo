@@ -156,11 +156,13 @@ You must also setup a test user, call this:
 == history ==
 
 
-* *dev* - [[https://github.com/jedie/django-processinfo/compare/v0.9.0...master|compare v0.9.0...master]]
+* *dev* - [[https://github.com/jedie/django-processinfo/compare/v1.0.0...master|compare v1.0.0...master]]
+** TBC
+* v1.0.0 - 1.11.2020 - [[https://github.com/jedie/django-processinfo/compare/v0.9.0...v1.0.0|compare v0.9.0...v1.0.0]]
 ** modernize project setup using poetry
 ** Add a test project
+** Add tests
 ** upgrade code style
-** TBC
 * v0.9.0 - 26.02.2020 - [[https://github.com/jedie/django-processinfo/compare/v0.8.0...v0.9.0|compare v0.8.0...v0.9.0]]
 ** Updates for Django 2.2
 * v0.8.0 - 09.03.2018 - [[https://github.com/jedie/django-processinfo/compare/v0.7.1...v0.8.0|compare v0.7.1...v0.8.0]]
