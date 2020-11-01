@@ -25,6 +25,7 @@ flake8 = "*"
 flynt = "*"
 autopep8 = "*"
 pyupgrade = "*"
+model_bakery = "*"  # https://github.com/model-bakers/model_bakery
 
 [tool.poetry.scripts]
 publish = "django_processinfo.publish:publish"
