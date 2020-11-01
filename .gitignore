@@ -12,6 +12,9 @@ local_settings.py
 /static/
 /poetry.lock
 
+/.tox/
+
 coverage.xml
-/.coverage
+.coverage
 /htmlcov/
+

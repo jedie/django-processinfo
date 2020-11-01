@@ -6,7 +6,9 @@ from pathlib import Path
 from creole.setup_utils import update_rst_readme
 
 import django_processinfo
-from django_processinfo.publish import PACKAGE_ROOT
+
+
+PACKAGE_ROOT = Path(__file__).parent.parent
 
 
 def assert_file_contains_string(file_path, string):

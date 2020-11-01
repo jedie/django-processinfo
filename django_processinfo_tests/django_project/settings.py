@@ -29,8 +29,8 @@ INSTALLED_APPS = [
     'django_processinfo',
 ]
 
-ROOT_URLCONF = 'django_processinfo.tests.django_project.urls'
-WSGI_APPLICATION = 'django_processinfo.tests.django_project.wsgi.application'
+ROOT_URLCONF = 'django_processinfo_tests.django_project.urls'
+WSGI_APPLICATION = 'django_processinfo_tests.django_project.wsgi.application'
 SITE_ID = 1
 
 MIDDLEWARE = [

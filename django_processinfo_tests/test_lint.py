@@ -2,7 +2,8 @@ import shutil
 import subprocess
 from pathlib import Path
 
-from django_processinfo.publish import PACKAGE_ROOT
+
+PACKAGE_ROOT = Path(__file__).parent.parent
 
 
 def test_lint():
