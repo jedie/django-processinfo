@@ -1,0 +1,333 @@
+==================
+django-processinfo
+==================
+
+A reuseable Django application for collecing information about the running server processes.
+We try to cause as little additional overhead: django-processinfo creates most of the time only one database query to update the data.
+
+The most important data that django-processinfo will be captured:
+
+* Process statistics:
+
+    * process PID, start time, life times
+
+    * Number of average/max living processes
+
+    * min/average/max response times
+
+    * Total request/exceptions count
+
+* Memory statistics:
+
+    * min/average/max memory usage (VmRSS, VmPeak)
+
+* System informations:
+
+    * System memory usage
+
+    * Swap usage
+
+    * load average
+
+django-processinfo splits some of these data per SITE_ID, so you can see e.g. which site is mostly used.
+
+What is it not:
+
+* track user actions
+
+* collect infos which are found in e.g. apache.log
+
+* Its not a sourcecode profiler (read `https://code.djangoproject.com/wiki/ProfilingDjango <https://code.djangoproject.com/wiki/ProfilingDjango>`_)
+
+more info: `https://www.python-forum.de/viewtopic.php?f=6&t=27168 <https://www.python-forum.de/viewtopic.php?f=6&t=27168>`_ (de)
+
+----------
+limitation
+----------
+
+This only works, if **/proc/$$/status** exists. So only on unix/linux like platforms, yet.
+
+----
+TODO
+----
+
+Add unittests
+
+-----------
+screenshots
+-----------
+
+Here `some screenshots (from v0.2 - 19.08.2011) <https://github.com/jedie/jedie.github.io/tree/master/screenshots/django-processinfo>`_ how it looks like:
+
+----
+
+|Screenshot 1|
+
+.. |Screenshot 1| image:: https://raw.githubusercontent.com/jedie/jedie.github.io/master/screenshots/django-processinfo/20110819_django-processinfo-1.png
+
+----
+
+|Screenshot 2|
+
+.. |Screenshot 2| image:: https://raw.githubusercontent.com/jedie/jedie.github.io/master/screenshots/django-processinfo/20110819_django-processinfo-2.png
+
+-------
+install
+-------
+
+1. install it e.g.:
+
+::
+
+    pip install django-processinfo
+
+2. add settings (see below)
+
+3. create tables (run syncdb)
+
+--------
+settings
+--------
+
+add this to your settings.py:
+
+::
+
+    import os
+    
+    import django_processinfo
+    
+    
+    INSTALLED_APPS = (
+    	...
+    	'django_processinfo',
+    	...
+    )
+    
+    MIDDLEWARE = (
+        'django_processinfo.middlewares.ProcessInfoMiddleware',
+        ...
+    )
+    
+    # Put templates above admin contrib, e.g.:
+    TEMPLATE_DIRS = (
+    	...
+        os.path.join(os.path.abspath(os.path.dirname(django_processinfo.__file__)), "templates/"),
+        ...
+    )
+    
+    # include app settings from ./django_processinfo/app_settings.py
+    from django_processinfo import app_settings as PROCESSINFO
+    
+    # Change settings like this:
+    PROCESSINFO.ADD_INFO = True
+
+ProcessInfoMiddleware
+=====================
+
+The **ProcessInfoMiddleware** can actually be inserted anywhere.
+However, it should be added far above. Thus, to capture everything.
+
+For performance enhancement, you can put **ProcessInfoMiddleware** after **LocalSyncCacheMiddleware**.
+But then, however, lacks statistical values on every cache hit!
+
+app settings
+============
+
+Available django-processinfo settings can you found in `./django_processinfo/app_settings.py <https://github.com/jedie/django-processinfo/blob/master/django_processinfo/app_settings.py>`_
+
+--------------
+developer info
+--------------
+
+e.g.:
+
+::
+
+    ~$ git clone https://github.com/jedie/django-processinfo.git
+    ~$ cd django-processinfo
+    ~/django-processinfo$ make
+    help                 List all commands
+    install-poetry       install or update poetry
+    install              install PyInventory via poetry
+    update               update the sources and installation
+    lint                 Run code formatters and linter
+    fix-code-style       Fix code formatting
+    tox-listenvs         List all tox test environments
+    tox                  Run pytest via tox with all environments
+    tox-py36             Run pytest via tox with *python v3.6*
+    tox-py37             Run pytest via tox with *python v3.7*
+    tox-py38             Run pytest via tox with *python v3.8*
+    pytest               Run pytest
+    update-rst-readme    update README.rst from README.creole
+    publish              Release new version to PyPi
+    run-dev-server       Run the django dev server in endless loop.
+
+run test project
+================
+
+There exists a test project that can be easy run localy using the django dev. server and SQLite database.
+To run this project, do this:
+
+::
+
+    ~/django-processinfo$ make run-dev-server
+
+You must also setup a test user, call this:
+
+::
+
+    ~/django-processinfo$ ./manage.sh createsuperuser
+
+--------------------
+Django compatibility
+--------------------
+
++---------+----------+------------------+
+| Version | Python   | Django           |
++=========+==========+==================+
+| v0.9.0  | python 3 | django v2.2 LTS  |
++---------+----------+------------------+
+| v0.8.0  | python 3 | django v1.11 LTS |
++---------+----------+------------------+
+| v0.7.0  | python 2 | django v1.5      |
++---------+----------+------------------+
+| v0.6.1  | python 2 | django v1.4      |
++---------+----------+------------------+
+
+-------
+history
+-------
+
+* *dev* - `compare v0.9.0...master <https://github.com/jedie/django-processinfo/compare/v0.9.0...master>`_ 
+
+    * modernize project setup using poetry
+
+    * Add a test project
+
+    * upgrade code style
+
+    * TBC
+
+* v0.9.0 - 26.02.2020 - `compare v0.8.0...v0.9.0 <https://github.com/jedie/django-processinfo/compare/v0.8.0...v0.9.0>`_ 
+
+    * Updates for Django 2.2
+
+* v0.8.0 - 09.03.2018 - `compare v0.7.1...v0.8.0 <https://github.com/jedie/django-processinfo/compare/v0.7.1...v0.8.0>`_ 
+
+    * Updates for Python v3 and Django 1.11
+
+* v0.7.1 - 20.08.2015 - `compare v0.6.3...v0.7.1 <https://github.com/jedie/django-processinfo/compare/v0.6.3...v0.7.1>`_ 
+
+    * Changes for django 1.5 support
+
+    * change setup install_requires to Django v1.3.x - v1.5.x
+
+    * Bugfix in templates: missed i18n
+
+* v0.6.3 - 24.08.2012
+
+    * remove auto commit date from version
+
+* v0.6.2
+
+    * Auto cleanup ProcessInfo table to protect against overloading.
+
+    * Don't insert django-processinfo "time cost" info if response.status_code is not 200
+
+* v0.6.1
+
+    * Tested also with django v1.4
+
+    * change setup install_requires to Django v1.3.x - v1.4.x
+
+* v0.6.0
+
+    * Add "Reset all data" in object tools.
+
+    * Make "Remove dead PIDs" and "Reset all data" available on both admin pages.
+
+* v0.5.2
+
+    * `Bugfix if no SWAP used. <https://github.com/jedie/django-processinfo/issues/4>`_
+
+* v0.5.1
+
+    * Add "Remove dead PIDs" as admin view in "Process statistics" object tools (top, right, grey links)
+
+* v0.5.0
+
+    * Model changes: Please recreate tables, e.g.: ``./manage.py reset django_processinfo`` 
+
+    * New: Display some static system informations (uname, domain name, ip adress, python version, sys.prefix)
+
+    * New: current living processes (also per site)
+
+    * display sum of user/system mode time
+
+* v0.4.1
+
+    * Bugfix for UnicodeEncodeError in setup: Use new solution, see: `https://code.google.com/p/python-creole/wiki/UseInSetup <https://code.google.com/p/python-creole/wiki/UseInSetup>`_
+
+* v0.4
+
+    * Bugfix with "Total created processes"
+
+    * Display "Process lifetime"
+
+* v0.3.0
+
+    * Display some system information from /proc/meminfo and 'load average'
+
+    * Many Bugfixes
+
+* v0.2.0
+
+    * Many things changes! Recreate tables, e.g: ``./manage.py reset django_processinfo`` 
+
+* v0.1.0
+
+    * first Version
+
+--------
+Donation
+--------
+
+* `paypal.me/JensDiemer <https://www.paypal.me/JensDiemer>`_
+
+* `Flattr This! <https://flattr.com/submit/auto?uid=jedie&url=https%3A%2F%2Fgithub.com%2Fjedie%2Fdjango-reversion-compare%2F>`_
+
+* Send `Bitcoins <http://www.bitcoin.org/>`_ to `1823RZ5Md1Q2X5aSXRC5LRPcYdveCiVX6F <https://blockexplorer.com/address/1823RZ5Md1Q2X5aSXRC5LRPcYdveCiVX6F>`_
+
+-----
+links
+-----
+
++--------+---------------------------------------------------+
+| GitHub | `https://github.com/jedie/django-processinfo`_    |
++--------+---------------------------------------------------+
+| PyPi   | `http://pypi.python.org/pypi/django-processinfo`_ |
++--------+---------------------------------------------------+
+
+.. _https://github.com/jedie/django-processinfo: https://github.com/jedie/django-processinfo
+.. _http://pypi.python.org/pypi/django-processinfo: http://pypi.python.org/pypi/django-processinfo
+
+contact
+=======
+
+Come into the conversation, besides the github communication features:
+
++---------+--------------------------------------------------------+
+| Forum   | `http://www.pylucid.org/en/forum/10/`_                 |
++---------+--------------------------------------------------------+
+| IRC     | #pylucid on freenode.net (Yes, the PyLucid channel...) |
++---------+--------------------------------------------------------+
+| webchat | `http://webchat.freenode.net/?channels=pylucid`_       |
++---------+--------------------------------------------------------+
+
+.. _http://www.pylucid.org/en/forum/10/: http://www.pylucid.org/en/forum/10/
+.. _http://webchat.freenode.net/?channels=pylucid: http://webchat.freenode.net/?channels=pylucid
+
+------------
+
+``Note: this file is generated from README.creole 2020-11-01 18:03:51 with "python-creole"``
