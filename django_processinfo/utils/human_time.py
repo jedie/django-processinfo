@@ -9,9 +9,7 @@
 import datetime
 
 from django.template.loader import render_to_string
-from django.utils.timesince import timesince
 from django.utils.translation import gettext as _
-from django.utils.translation import ungettext
 from pytz.reference import LocalTimezone
 
 

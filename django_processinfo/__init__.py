@@ -2,4 +2,4 @@
 default_app_config = 'django_processinfo.apps.DjangoProcessinfoConfig'
 
 
-from .version import __version__  # noqa
+__version__ = "1.0.0.rc1"

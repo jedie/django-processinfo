@@ -9,7 +9,7 @@ from pathlib import Path as __Path
 from django.utils.translation import gettext_lazy as _
 
 from django_processinfo import app_settings as PROCESSINFO
-from django_processinfo.tests import BASE_PATH  # Build paths inside the project
+from django_processinfo.publish import PACKAGE_ROOT  # Build paths inside the project
 
 
 SECRET_KEY = 'No individual secret for tests ;)'
@@ -64,7 +64,7 @@ TEMPLATES = [
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': str(__Path(BASE_PATH.parent, 'test-database.sqlite3')),
+        'NAME': str(__Path(PACKAGE_ROOT.parent, 'test-database.sqlite3')),
         # 'NAME': ':memory:'
         # https://docs.djangoproject.com/en/dev/ref/databases/#database-is-locked-errors
         'timeout': 30,
@@ -94,10 +94,10 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 
 STATIC_URL = '/static/'
-STATIC_ROOT = str(__Path(BASE_PATH, 'static'))
+STATIC_ROOT = str(__Path(PACKAGE_ROOT, 'static'))
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = str(__Path(BASE_PATH, 'media'))
+MEDIA_ROOT = str(__Path(PACKAGE_ROOT, 'media'))
 
 
 # _____________________________________________________________________________

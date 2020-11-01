@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "django-processinfo"
-version = "1.0.0"
+version = "1.0.0.rc1"
 description = "Django application to collect information about the running server processes."
 authors = ["JensDiemer <git@jensdiemer.de>"]
 license = "GNU General Public License v3.0 or above"
@@ -28,6 +28,7 @@ pyupgrade = "*"
 
 [tool.poetry.scripts]
 publish = "django_processinfo.publish:publish"
+update_rst_readme = "django_processinfo.publish:update_readme"
 
 [tool.autopep8]
 # https://github.com/hhatto/autopep8#pyprojecttoml

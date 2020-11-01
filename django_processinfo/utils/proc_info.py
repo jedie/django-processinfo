@@ -54,7 +54,7 @@ def process_information(pid=None):
                 else:
                     try:
                         result.append((key, int(values)))
-                    except ValueError as err:
+                    except ValueError:
                         result.append((key, values))
                 continue
             elif length == 2:
@@ -98,7 +98,7 @@ def meminfo():
             if length == 1:
                 try:
                     result.append((key, int(values)))
-                except ValueError as err:
+                except ValueError:
                     result.append((key, values))
                 continue
             elif length == 2:
@@ -126,10 +126,10 @@ def uptime_infomation():
 
 
 if __name__ == "__main__":
+    p = process_information()
     import pprint
+    pprint.pprint(p)
 
-#    p = process_information()
-#    pprint.pprint(p)
     try:
         p = dict(process_information())
     except OSError as err:
@@ -137,9 +137,8 @@ if __name__ == "__main__":
     else:
         print("Peak virtual memory size: %i Bytes" % p["VmPeak"])
 
-
-#    m = meminfo()
-#    pprint.pprint(m)
+    m = meminfo()
+    pprint.pprint(m)
     try:
         m = dict(meminfo())
     except OSError as err:

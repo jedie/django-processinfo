@@ -28,7 +28,7 @@ def publish():
 
     poetry_publish(
         package_root=PACKAGE_ROOT,
-        version=inventory.__version__,
+        version=django_processinfo.__version__,
         creole_readme=True  # don't publish if README.rst is not up-to-date
     )
 

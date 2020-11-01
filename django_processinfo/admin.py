@@ -15,7 +15,6 @@ import time
 from django.conf import settings
 from django.conf.urls import url
 from django.contrib import admin
-from django.core.exceptions import PermissionDenied
 from django.db.models.aggregates import Avg, Max, Min, Sum
 from django.http import HttpResponseRedirect
 from django.template.defaultfilters import filesizeformat
@@ -275,7 +274,10 @@ class BaseModelAdmin(admin.ModelAdmin):
             "updatetime": timesince2(updatetime),
 
             "script_filename": self.request.META.get("SCRIPT_FILENAME", "???"),
-            "server_info": f"{self.request.META.get('SERVER_NAME', '???')}:{self.request.META.get('SERVER_PORT', '???')}"
+            "server_info": (
+                f"{self.request.META.get('SERVER_NAME', '???')}"
+                f":{self.request.META.get('SERVER_PORT', '???')}"
+            )
         }
         extra_context.update(STATIC_INFORMATIONS)
 
@@ -446,7 +448,6 @@ class ProcessInfoAdmin(BaseModelAdmin):
     ]
     if not settings.DEBUG:
         del(list_display[list_display.index("db_query_count_avg")])
-    #actions = [remove_dead_entries]
 
 
 admin.site.register(ProcessInfo, ProcessInfoAdmin)

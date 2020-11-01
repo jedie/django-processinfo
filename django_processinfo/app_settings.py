@@ -50,12 +50,12 @@ URL_FILTER = (
     # Syntax: (URL name as String or parameters as dict, Bool: recusive or not)
 
     # To exclude all django admin panel views, use this:
-    #("admin:index", True),
+    # ("admin:index", True),
 
     # Exclude only explicit one url, e.g.:
-    #("/foo/bar/", False),
+    # ("/foo/bar/", False),
 
     # You can also pass parameters to urlresolvers.reverse():
     # Exclude the views and "subviews" of Django-processinfo models in django admin:
-    #({"viewname": "admin:app_list", "args": ("django_processinfo",)}, True),
+    # ({"viewname": "admin:app_list", "args": ("django_processinfo",)}, True),
 )

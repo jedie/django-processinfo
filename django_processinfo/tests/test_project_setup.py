@@ -6,7 +6,7 @@ from pathlib import Path
 from creole.setup_utils import update_rst_readme
 
 import django_processinfo
-from django_processinfo.tests import BASE_PATH
+from django_processinfo.publish import PACKAGE_ROOT
 
 
 def assert_file_contains_string(file_path, string):
@@ -19,7 +19,9 @@ def assert_file_contains_string(file_path, string):
 
 def test_version(package_root=None, version=None):
     if package_root is None:
-        package_root = BASE_PATH
+        package_root = PACKAGE_ROOT
+
+    assert Path(package_root, 'README.creole'), f'Wrong package_root={package_root}'
 
     if version is None:
         version = django_processinfo.__version__
@@ -45,7 +47,7 @@ def test_version(package_root=None, version=None):
 
 def test_poetry_check(package_root=None):
     if package_root is None:
-        package_root = BASE_PATH
+        package_root = PACKAGE_ROOT
 
     poerty_bin = shutil.which('poetry')
 
@@ -62,7 +64,7 @@ def test_poetry_check(package_root=None):
 
 def test_update_rst_readme(capsys):
     rest_readme_path = update_rst_readme(
-        package_root=BASE_PATH, filename='README.creole'
+        package_root=PACKAGE_ROOT, filename='README.creole'
     )
     captured = capsys.readouterr()
     assert captured.out == 'Generate README.rst from README.creole...nothing changed, ok.\n'
