@@ -4,6 +4,14 @@ version = "1.0.0.rc1"
 description = "Django application to collect information about the running server processes."
 authors = ["JensDiemer <git@jensdiemer.de>"]
 license = "GNU General Public License v3.0 or above"
+packages = [
+    { include = "django_processinfo" },
+]
+keywords=['django']
+include = ['AUTHORS', 'LICENSE', 'README.creole']
+
+# Will be generated from README.creole with: 'poetry run update_rst_readme'
+readme='README.rst'
 
 [tool.poetry.dependencies]
 python = ">=3.7,<4.0.0"

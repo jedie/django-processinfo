@@ -1,3 +1,0 @@
-include AUTHORS README.creole LICENSE MANIFEST.in
-recursive-include * *.html *.css *.js
-recursive-exclude * *.py[co]
