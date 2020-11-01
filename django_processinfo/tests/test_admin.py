@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from model_bakery import baker
 
-from django_processinfo.models import SiteStatistics, ProcessInfo
+from django_processinfo.models import ProcessInfo, SiteStatistics
 
 
 class AdminAnonymousTests(TestCase):
