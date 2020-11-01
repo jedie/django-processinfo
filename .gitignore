@@ -8,3 +8,13 @@ local_settings.py
 *.db3
 /.settings
 /.idea
+
+/static/
+/poetry.lock
+
+/.tox/
+
+coverage.xml
+.coverage
+/htmlcov/
+

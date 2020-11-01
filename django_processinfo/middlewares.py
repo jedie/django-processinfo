@@ -1,5 +1,3 @@
-# coding: utf-8
-
 """
     models stuff
     ~~~~~~~~~~~~
@@ -19,7 +17,7 @@ from django.db import connection
 from django.urls import reverse
 from django.utils.deprecation import MiddlewareMixin
 
-from django_processinfo.models import SiteStatistics, ProcessInfo
+from django_processinfo.models import ProcessInfo, SiteStatistics
 from django_processinfo.utils.average import average
 from django_processinfo.utils.proc_info import process_information
 
@@ -46,13 +44,13 @@ class ProcessInfoMiddleware(MiddlewareMixin):
             if isinstance(url_name, dict):
                 kwargs = url_name
             else:
-                kwargs = {"viewname":url_name}
+                kwargs = {"viewname": url_name}
             try:
 
                 url = reverse(**kwargs)
             except Exception:
                 etype, evalue, etb = sys.exc_info()
-                evalue = etype("Wrong django-processinfo URL_FILTER %r: %s" % (url_name, evalue))
+                evalue = etype(f"Wrong django-processinfo URL_FILTER {url_name!r}: {evalue}")
                 raise etype(evalue).with_traceback(etb)
 
             self.url_filter.append((url, recusive))
@@ -83,28 +81,28 @@ class ProcessInfoMiddleware(MiddlewareMixin):
         process_info, process_created = ProcessInfo.objects.get_or_create(
             pid=self.pid,
             defaults={
-                "db_query_count_min":self.query_count,
-                "db_query_count_max":self.query_count,
-                "db_query_count_avg":self.query_count,
-                "response_time_min":self.response_time,
-                "response_time_max":self.response_time,
-                "response_time_avg":self.response_time,
-                "response_time_sum":self.response_time,
+                "db_query_count_min": self.query_count,
+                "db_query_count_max": self.query_count,
+                "db_query_count_avg": self.query_count,
+                "response_time_min": self.response_time,
+                "response_time_max": self.response_time,
+                "response_time_avg": self.response_time,
+                "response_time_sum": self.response_time,
                 "threads_avg": self.threads,
-                "threads_min":self.threads,
-                "threads_max":self.threads,
-                "user_time_min":self.user_time,
-                "user_time_max":self.user_time,
-                "user_time_total":self.user_time,
-                "system_time_total":self.system_time,
-                "system_time_min":self.system_time,
-                "system_time_max":self.system_time,
-                "vm_peak_min":self.vmpeak,
-                "vm_peak_max":self.vmpeak,
-                "vm_peak_avg":self.vmpeak,
-                "memory_min":self.memory,
-                "memory_max":self.memory,
-                "memory_avg":self.memory,
+                "threads_min": self.threads,
+                "threads_max": self.threads,
+                "user_time_min": self.user_time,
+                "user_time_max": self.user_time,
+                "user_time_total": self.user_time,
+                "system_time_total": self.system_time,
+                "system_time_min": self.system_time,
+                "system_time_max": self.system_time,
+                "vm_peak_min": self.vmpeak,
+                "vm_peak_max": self.vmpeak,
+                "vm_peak_avg": self.vmpeak,
+                "memory_min": self.memory,
+                "memory_max": self.memory,
+                "memory_avg": self.memory,
             }
         )
         if exception:
@@ -155,7 +153,6 @@ class ProcessInfoMiddleware(MiddlewareMixin):
             )
             process_info.save()
 
-
         current_site = Site.objects.get_current()
         site_stats, created = SiteStatistics.objects.get_or_create(
             site=current_site
@@ -189,11 +186,9 @@ class ProcessInfoMiddleware(MiddlewareMixin):
         response = self.get_response(request)
         return response
 
-
     def process_exception(self, request, exception):
         self.own_start_time = time.time()
         self._insert_statistics(exception=True)
-
 
     def process_response(self, request, response):
 
@@ -214,10 +209,10 @@ class ProcessInfoMiddleware(MiddlewareMixin):
         # Exclude this response by settings.PROCESSINFO.URL_FILTER
         for url, recusive in self.url_filter:
             if recusive and request.path.startswith(url):
-                #print "Skip (recusive) %r" % request.path
+                # print "Skip (recusive) %r" % request.path
                 return response
             if request.path == url:
-                #print "Skip (exact) %r" % request.path
+                # print "Skip (exact) %r" % request.path
                 return response
 
         self._insert_statistics()
@@ -229,9 +224,9 @@ class ProcessInfoMiddleware(MiddlewareMixin):
             response.content = response.content.replace(
                 settings.PROCESSINFO.INFO_SEARCH_STRING,
                 bytes(settings.PROCESSINFO.INFO_FORMATTER.format(
-                    own = own * 1000,
-                    total = self.response_time * 1000,
-                    perc = perc,
+                    own=own * 1000,
+                    total=self.response_time * 1000,
+                    perc=perc,
                 ), encoding="UTF-8")
             )
 

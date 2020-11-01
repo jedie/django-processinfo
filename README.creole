@@ -108,6 +108,43 @@ But then, however, lacks statistical values on every cache hit!
 
 Available django-processinfo settings can you found in [[https://github.com/jedie/django-processinfo/blob/master/django_processinfo/app_settings.py|./django_processinfo/app_settings.py]]
 
+
+== developer info
+
+e.g.:
+{{{
+~$ git clone https://github.com/jedie/django-processinfo.git
+~$ cd django-processinfo
+~/django-processinfo$ make
+help                 List all commands
+install-poetry       install or update poetry
+install              install PyInventory via poetry
+update               update the sources and installation
+lint                 Run code formatters and linter
+fix-code-style       Fix code formatting
+tox-listenvs         List all tox test environments
+tox                  Run pytest via tox with all environments
+tox-py36             Run pytest via tox with *python v3.6*
+tox-py37             Run pytest via tox with *python v3.7*
+tox-py38             Run pytest via tox with *python v3.8*
+pytest               Run pytest
+update-rst-readme    update README.rst from README.creole
+publish              Release new version to PyPi
+run-dev-server       Run the django dev server in endless loop.
+}}}
+
+=== run test project
+
+There exists a test project that can be easy run localy using the django dev. server and SQLite database.
+To run this project, do this:
+{{{
+~/django-processinfo$ make run-dev-server
+}}}
+You must also setup a test user, call this:
+{{{
+~/django-processinfo$ ./manage.sh createsuperuser
+}}}
+
 == Django compatibility
 
 |= Version |= Python  |= Django
@@ -120,6 +157,9 @@ Available django-processinfo settings can you found in [[https://github.com/jedi
 
 
 * *dev* - [[https://github.com/jedie/django-processinfo/compare/v0.9.0...master|compare v0.9.0...master]]
+** modernize project setup using poetry
+** Add a test project
+** upgrade code style
 ** TBC
 * v0.9.0 - 26.02.2020 - [[https://github.com/jedie/django-processinfo/compare/v0.8.0...v0.9.0|compare v0.8.0...v0.9.0]]
 ** Updates for Django 2.2
@@ -143,7 +183,7 @@ Available django-processinfo settings can you found in [[https://github.com/jedi
 * v0.5.2
 ** [[https://github.com/jedie/django-processinfo/issues/4|Bugfix if no SWAP used.]]
 * v0.5.1
-** Add "Remove dead PIDs" as admin view in "Process statistics" object tools (top, right, grey links) 
+** Add "Remove dead PIDs" as admin view in "Process statistics" object tools (top, right, grey links)
 * v0.5.0
 ** Model changes: Please recreate tables, e.g.: {{{ ./manage.py reset django_processinfo }}}
 ** New: Display some static system informations (uname, domain name, ip adress, python version, sys.prefix)

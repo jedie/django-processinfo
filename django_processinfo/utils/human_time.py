@@ -1,5 +1,3 @@
-# coding: utf-8
-
 """
     django-processinfo - utils
     ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -10,26 +8,22 @@
 
 import datetime
 
-
 from django.template.loader import render_to_string
-from django.utils.timesince import timesince
-
-from django.utils.translation import ungettext
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from pytz.reference import LocalTimezone
 
 
 def datetime2float(t):
-    """  
+    """
     >>> datetime2float(datetime.timedelta(seconds=1))
     1.0
-    
+
     >>> f = datetime2float(datetime.timedelta(weeks=2, seconds=20.1, microseconds=100))
     >>> f
     1209620.1001
-    >>> f == 20.1 + 0.0001 + 2 * 7 * 24 * 60 * 60 
+    >>> f == 20.1 + 0.0001 + 2 * 7 * 24 * 60 * 60
     True
-    
+
     >>> datetime2float("type error")
     Traceback (most recent call last):
         ...
@@ -47,13 +41,13 @@ def timesince2(d, now=None):
     Simmilar to django.utils.timesince.timesince, but:
         * display "X Sec" and "X ms", too
         * generates html code with both information
-        
+
     >>> timesince2(datetime.datetime(2005, 7, 14, 0), datetime.datetime(2005, 7, 16, 12))
     u'<span title="July 14, 2005, midnight" style="cursor:help;">2.5 days</span>'
-    
+
     >>> timesince2(datetime.datetime(2005, 7, 14, 12, 30, 00), datetime.datetime(2005, 7, 14, 12, 30, 10))
     u'<span title="July 14, 2005, 12:30 p.m." style="cursor:help;">10.0 sec</span>'
-    
+
     >>> timesince2(datetime.datetime(2005, 7, 14, 12, 30, 00), datetime.datetime(2005, 7, 14, 12, 30, 00, 1200))
     u'<span title="July 14, 2005, 12:30 p.m." style="cursor:help;">1.2 ms</span>'
     """
@@ -67,8 +61,8 @@ def timesince2(d, now=None):
         else:
             now = datetime.datetime.now()
     elif not isinstance(now, datetime.datetime):
-            # Convert datetime.date to datetime.datetime
-            now = datetime.datetime(now.year, now.month, now.day)
+        # Convert datetime.date to datetime.datetime
+        now = datetime.datetime(now.year, now.month, now.day)
 
     # ignore microsecond part of 'd' since we removed it from 'now'
     delta = now - (d - datetime.timedelta(0, 0, d.microsecond))
@@ -82,12 +76,12 @@ def timesince2(d, now=None):
 def human_duration(t):
     """
     Converts a time duration into a friendly text representation.
-    
+
     >>> human_duration("type error")
     Traceback (most recent call last):
         ...
     TypeError: human_duration() argument must be timedelta, integer or float)
-    
+
     >>> human_duration(None)
     u'None'
     >>> human_duration(datetime.timedelta(microseconds=1000))
@@ -120,11 +114,11 @@ def human_duration(t):
         raise TypeError("human_duration() argument must be timedelta, integer or float)")
 
     chunks = (
-      (60 * 60 * 24 * 365, _('years')),
-      (60 * 60 * 24 * 30, _('months')),
-      (60 * 60 * 24 * 7, _('weeks')),
-      (60 * 60 * 24, _('days')),
-      (60 * 60, _('hours')),
+        (60 * 60 * 24 * 365, _('years')),
+        (60 * 60 * 24 * 30, _('months')),
+        (60 * 60 * 24 * 7, _('weeks')),
+        (60 * 60 * 24, _('days')),
+        (60 * 60, _('hours')),
     )
 
     if t < 1:
@@ -139,7 +133,4 @@ def human_duration(t):
         if count >= 1:
             count = round(count, 1)
             break
-    return "%(number).1f %(type)s" % {'number': count, 'type': name}
-
-
-
+    return f"{count:.1f} {name}"

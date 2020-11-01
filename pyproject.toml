@@ -1,0 +1,49 @@
+[tool.poetry]
+name = "django-processinfo"
+version = "1.0.0.rc1"
+description = "Django application to collect information about the running server processes."
+authors = ["JensDiemer <git@jensdiemer.de>"]
+license = "GNU General Public License v3.0 or above"
+packages = [
+    { include = "django_processinfo" },
+]
+keywords=['django']
+include = ['AUTHORS', 'LICENSE', 'README.creole']
+
+# Will be generated from README.creole with: 'poetry run update_rst_readme'
+readme='README.rst'
+
+[tool.poetry.dependencies]
+python = ">=3.7,<4.0.0"
+Django = "*"
+
+[tool.poetry.dev-dependencies]
+django-debug-toolbar = "*"  # http://django-debug-toolbar.readthedocs.io/en/stable/changes.html
+poetry-publish = "*"  # https://github.com/jedie/poetry-publish
+python-creole = "*"  # https://github.com/jedie/python-creole
+colorlog = "*"  # https://github.com/borntyping/python-colorlog
+tox = "*"
+pytest = "*"
+pytest-randomly = "*"
+pytest-cov = "*"
+pytest-django = "*"
+coveralls = "*"
+isort = "*"
+flake8 = "*"
+flynt = "*"
+autopep8 = "*"
+pyupgrade = "*"
+model_bakery = "*"  # https://github.com/model-bakers/model_bakery
+
+[tool.poetry.scripts]
+publish = "django_processinfo.publish:publish"
+update_rst_readme = "django_processinfo.publish:update_readme"
+
+[tool.autopep8]
+# https://github.com/hhatto/autopep8#pyprojecttoml
+max_line_length = 120
+exclude = "*/migrations/*"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

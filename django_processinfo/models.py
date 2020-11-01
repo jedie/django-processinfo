@@ -1,5 +1,3 @@
-# coding: utf-8
-
 """
     models stuff
     ~~~~~~~~~~~~
@@ -11,9 +9,9 @@
 import os
 
 from django.conf import settings
-from django.db import models
 from django.contrib.sites.models import Site
-from django.utils.translation import ugettext_lazy as _
+from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 from django_processinfo.utils.average import average
 
@@ -26,25 +24,26 @@ class BaseModel(models.Model):
         abstract = True
 
 
-
 class SiteStatistics(BaseModel):
     """
     Overall statistics separated per settings.SITE_ID
     """
-    site = models.OneToOneField(Site, primary_key=True, db_index=True, default=settings.SITE_ID,
+    site = models.OneToOneField(
+        Site, primary_key=True, db_index=True, default=settings.SITE_ID,
         on_delete=models.CASCADE,
         help_text=_("settings.SITE_ID")
     )
 
-    process_spawn = models.PositiveIntegerField(default=1,
+    process_spawn = models.PositiveIntegerField(
+        default=1,
         help_text=_("Total number of processes spawend (approximated)")
     )
-    process_count_avg = models.FloatField(default=1.0,
+    process_count_avg = models.FloatField(
+        default=1.0,
         help_text=_("Average number of living processes. (approximated)")
     )
-    process_count_max = models.PositiveSmallIntegerField(default=1,
-        help_text=_("Maximum number of living processes. (approximated)")
-    )
+    process_count_max = models.PositiveSmallIntegerField(
+        default=1, help_text=_("Maximum number of living processes. (approximated)"))
 
     def update_informations(self):
         living_pids = ProcessInfo.objects.living_processes(site=self.site)
@@ -54,13 +53,13 @@ class SiteStatistics(BaseModel):
             self.process_count_avg, living_process_count, self.process_spawn
         )
         if self.process_count_avg < 1:
-            self.process_count_avg = 1 # Less than one is not possible ;)
+            self.process_count_avg = 1  # Less than one is not possible ;)
 
         self.process_count_max = max([self.process_count_max, living_process_count])
         return living_pids
 
     def __unicode__(self):
-        return "SiteStatistics for %s" % self.site
+        return f"SiteStatistics for {self.site}"
 
     class Meta:
         verbose_name_plural = verbose_name = "Site statistics"
@@ -108,7 +107,7 @@ class ProcessInfoManager(models.Manager):
             # The ProcessInfo() instance doesn't exist in the first Request,
             # because it's created in middleware.process_response()!
             current_pid = os.getpid()
-            if  current_pid not in living_pids:
+            if current_pid not in living_pids:
                 living_pids.append(current_pid)
 
         return living_pids
@@ -124,14 +123,16 @@ class ProcessInfo(BaseModel):
         primary_key=True, db_index=True,
         help_text=_("process ID.")
     )
-    alive = models.NullBooleanField(null=True, blank=True,
+    alive = models.NullBooleanField(
+        # null=True, blank=True,
         help_text=_(
             "Is this process dead (==False)?"
             " *Important:* alive is never==True! If alive==None: State unknown!"
             " (We don't check the state in every request!)"
         )
     )
-    site = models.ForeignKey(Site, default=settings.SITE_ID,
+    site = models.ForeignKey(
+        Site, default=settings.SITE_ID,
         on_delete=models.CASCADE,
         help_text=_("settings.SITE_ID")
     )
@@ -149,11 +150,13 @@ class ProcessInfo(BaseModel):
         help_text=_("Average database query count (ony available if settings.DEBUG==True)")
     )
 
-    request_count = models.PositiveIntegerField(default=1,
+    request_count = models.PositiveIntegerField(
+        default=1,
         verbose_name=_("Requests"),
         help_text=_("How many request answered since self.start_time")
     )
-    exception_count = models.PositiveIntegerField(default=0,
+    exception_count = models.PositiveIntegerField(
+        default=0,
         verbose_name=_("Exceptions"),
         help_text=_("How many requests led to a exception.")
     )
@@ -223,6 +226,3 @@ class ProcessInfo(BaseModel):
     class Meta:
         verbose_name_plural = verbose_name = "Process statistics"
         ordering = ("-lastupdate_time",)
-
-
-

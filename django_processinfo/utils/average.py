@@ -1,5 +1,3 @@
-# coding: utf-8
-
 """
     django-processinfo - utils
     ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -23,4 +21,3 @@ def average(old_avg, current_value, count):
     if old_avg is None:
         return current_value
     return (float(old_avg) * count + current_value) / (count + 1)
-
