@@ -258,7 +258,7 @@ class BaseModelAdmin(admin.ModelAdmin):
             "processor_time": human_duration(user_time_total + system_time_total),
             "loads": loads,
 
-            "version_string": __version__,
+            "processinfo_version_string": __version__,
 
             "life_time_min": human_duration(life_time_min),
             "life_time_max": human_duration(life_time_max),
