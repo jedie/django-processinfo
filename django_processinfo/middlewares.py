@@ -221,13 +221,15 @@ class ProcessInfoMiddleware(MiddlewareMixin):
             # insert django-processinfo "time cost" info in a html response
             own = time.monotonic() - self.own_start_time
             perc = own / self.response_time * 100
+            process_info = settings.PROCESSINFO.INFO_FORMATTER.format(
+                own=own * 1000,
+                total=self.response_time * 1000,
+                perc=perc,
+            )
             response.content = response.content.replace(
                 settings.PROCESSINFO.INFO_SEARCH_STRING,
-                bytes(settings.PROCESSINFO.INFO_FORMATTER.format(
-                    own=own * 1000,
-                    total=self.response_time * 1000,
-                    perc=perc,
-                ), encoding="UTF-8")
+                bytes(process_info, encoding="UTF-8")
             )
+            response['Content-Length'] = len(response.content)
 
         return response

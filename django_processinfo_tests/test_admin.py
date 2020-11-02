@@ -13,10 +13,22 @@ class AdminAnonymousTests(TestCase):
     def test_login_en(self):
         response = self.client.get('/admin/', HTTP_ACCEPT_LANGUAGE='en')
         self.assertRedirects(response, expected_url='/admin/login/?next=/admin/')
+        response = self.client.get('/admin/login/?next=/admin/', HTTP_ACCEPT_LANGUAGE='en')
+        self.assertTemplateUsed(response, 'admin/login.html')
+        content_length = int(response['Content-Length'])
+        response = response.content.decode("utf-8")
+        assert '<p class="django-processinfo"><small>django-processinfo:' in response
+        assert response.endswith('%)</small></p></body>\n</html>\n')
+        assert len(response) == content_length
 
     def test_login_de(self):
         response = self.client.get('/admin/', HTTP_ACCEPT_LANGUAGE='de')
         self.assertRedirects(response, expected_url='/admin/login/?next=/admin/')
+        response = self.client.get('/admin/login/?next=/admin/', HTTP_ACCEPT_LANGUAGE='de')
+        self.assertTemplateUsed(response, 'admin/login.html')
+        response = response.content.decode("utf-8")
+        assert '<p class="django-processinfo"><small>django-processinfo:' in response
+        assert response.endswith('%)</small></p></body>\n</html>\n')
 
 
 class ProcessinfoAdminTestCase(TestCase):
