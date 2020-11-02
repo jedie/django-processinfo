@@ -442,11 +442,21 @@ class ProcessInfoAdmin(BaseModelAdmin):
         )
     threads_info.short_description = _("Threads")
 
+    def user_time_total2(self, obj):
+        return human_duration(obj.user_time_total)
+    user_time_total2.short_description = _("user time total")
+    user_time_total2.admin_order_field = "user_time_total"
+
+    def system_time_total2(self, obj):
+        return human_duration(obj.system_time_total)
+    system_time_total2.short_description = _("system time total")
+    system_time_total2.admin_order_field = "system_time_total"
+
     list_display = [
         "pid", "alive2", "site", "request_count", "exception_count", "db_query_count_avg",
         "response_time_avg2", "response_time_sum2", "threads_info",
 
-        "user_time_total", "system_time_total",
+        "user_time_total2", "system_time_total2",
 
         "memory_avg2", "vm_peak_avg2",
         "start_time2", "lastupdate_time2", "life_time"
