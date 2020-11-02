@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.db.models.aggregates import Avg, Max, Min, Sum
 from django.http import HttpResponseRedirect
 from django.template.defaultfilters import filesizeformat
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 
 from django_processinfo import __version__
@@ -366,10 +367,13 @@ class SiteStatisticsAdmin(BaseModelAdmin):
 
     def threads_info(self, obj):
         aggregate_data = self.aggregate_data[obj.site]
-        threads_min = aggregate_data["threads_min__min"]
-        threads_max = aggregate_data["threads_max__max"]
-        threads_avg = aggregate_data["threads_avg__avg"]
-        return "%i&nbsp;/&nbsp;%.2f&nbsp;/&nbsp;%i" % (threads_min, threads_avg, threads_max)
+        return mark_safe(
+            f'{aggregate_data["threads_min__min"]}'
+            f'&nbsp;/&nbsp;'
+            f'{aggregate_data["threads_max__max"]:.2f}'
+            f'&nbsp;/&nbsp;'
+            f'{aggregate_data["threads_avg__avg"]:.2f}'
+        )
     threads_info.short_description = _("Threads")
     threads_info.allow_tags = True
 
@@ -433,9 +437,10 @@ class ProcessInfoAdmin(BaseModelAdmin):
     alive2.admin_order_field = "alive"
 
     def threads_info(self, obj):
-        return "%i&nbsp;/&nbsp;%.2f&nbsp;/&nbsp;%i" % (obj.threads_min, obj.threads_avg, obj.threads_max)
+        return mark_safe(
+            f"{obj.threads_min}&nbsp;/&nbsp;{obj.threads_avg:.2f}&nbsp;/&nbsp;{obj.threads_max}"
+        )
     threads_info.short_description = _("Threads")
-    threads_info.allow_tags = True
 
     list_display = [
         "pid", "alive2", "site", "request_count", "exception_count", "db_query_count_avg",
