@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "django-processinfo"
-version = "1.0.0"
+version = "1.0.1"
 description = "Django application to collect information about the running server processes."
 authors = ["JensDiemer <git@jensdiemer.de>"]
 license = "GNU General Public License v3.0 or above"
