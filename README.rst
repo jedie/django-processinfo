@@ -199,9 +199,19 @@ Django compatibility
 history
 -------
 
-* *dev* - `compare v1.0.0...master <https://github.com/jedie/django-processinfo/compare/v1.0.0...master>`_ 
+* *dev* - `compare v1.0.1...master <https://github.com/jedie/django-processinfo/compare/v1.0.1...master>`_ 
 
     * TBC
+
+* v1.0.1 - 2.11.2020 - `compare v1.0.0...v1.0.1 <https://github.com/jedie/django-processinfo/compare/v1.0.0...v1.0.1>`_ 
+
+    * Bugfix injected footer
+
+    * Fix/cleanup change list
+
+    * Bugfix test project ``manage.sh``
+
+    * cleanup test project
 
 * v1.0.0 - 1.11.2020 - `compare v0.9.0...v1.0.0 <https://github.com/jedie/django-processinfo/compare/v0.9.0...v1.0.0>`_ 
 
@@ -334,4 +344,4 @@ Come into the conversation, besides the github communication features:
 
 ------------
 
-``Note: this file is generated from README.creole 2020-11-01 18:52:54 with "python-creole"``
+``Note: this file is generated from README.creole 2020-11-02 09:07:54 with "python-creole"``

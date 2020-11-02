@@ -23,7 +23,7 @@ from django_processinfo.utils.proc_info import process_information
 
 
 # Save the start time of the current running python instance
-overall_start_time = time.time()
+overall_start_time = time.monotonic()
 
 
 def get_processor_times():
@@ -172,7 +172,7 @@ class ProcessInfoMiddleware(MiddlewareMixin):
 
     def process_request(self, request):
         """ save start time and database connections count. """
-        self.start_time = time.time()
+        self.start_time = time.monotonic()
 
         # We would like to accumulate only the times from processes
         # which are included in statistics. So we not use the absolute
@@ -187,12 +187,12 @@ class ProcessInfoMiddleware(MiddlewareMixin):
         return response
 
     def process_exception(self, request, exception):
-        self.own_start_time = time.time()
+        self.own_start_time = time.monotonic()
         self._insert_statistics(exception=True)
 
     def process_response(self, request, response):
 
-        self.own_start_time = time.time()
+        self.own_start_time = time.monotonic()
 
         is_200 = response.status_code == 200  # e.g. exclude 304 (HttpResponseNotModified)
 
@@ -219,15 +219,17 @@ class ProcessInfoMiddleware(MiddlewareMixin):
 
         if is_200 and settings.PROCESSINFO.ADD_INFO and mime_type == "text/html":
             # insert django-processinfo "time cost" info in a html response
-            own = time.time() - self.own_start_time
+            own = time.monotonic() - self.own_start_time
             perc = own / self.response_time * 100
+            process_info = settings.PROCESSINFO.INFO_FORMATTER.format(
+                own=own * 1000,
+                total=self.response_time * 1000,
+                perc=perc,
+            )
             response.content = response.content.replace(
                 settings.PROCESSINFO.INFO_SEARCH_STRING,
-                bytes(settings.PROCESSINFO.INFO_FORMATTER.format(
-                    own=own * 1000,
-                    total=self.response_time * 1000,
-                    perc=perc,
-                ), encoding="UTF-8")
+                bytes(process_info, encoding="UTF-8")
             )
+            response['Content-Length'] = len(response.content)
 
         return response

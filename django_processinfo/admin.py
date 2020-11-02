@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.db.models.aggregates import Avg, Max, Min, Sum
 from django.http import HttpResponseRedirect
 from django.template.defaultfilters import filesizeformat
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 
 from django_processinfo import __version__
@@ -257,7 +258,7 @@ class BaseModelAdmin(admin.ModelAdmin):
             "processor_time": human_duration(user_time_total + system_time_total),
             "loads": loads,
 
-            "version_string": __version__,
+            "processinfo_version_string": __version__,
 
             "life_time_min": human_duration(life_time_min),
             "life_time_max": human_duration(life_time_max),
@@ -290,20 +291,20 @@ class BaseModelAdmin(admin.ModelAdmin):
 
     def remove_dead_entries(self, request):
         """ remove all dead ProcessInfo entries """
-        start_time = time.time()
+        start_time = time.monotonic()
 
         living_pids, dead_pids = ProcessInfo.objects.get_alive_and_dead()
 
         ProcessInfo.objects.filter(pid__in=dead_pids).delete()
 
         self.message_user(request, _("Successfully deleted %(count)d dead entries in %(time).1fms.") % {
-            "count": len(dead_pids), "time": ((time.time() - start_time) * 1000)
+            "count": len(dead_pids), "time": ((time.monotonic() - start_time) * 1000)
         })
         return HttpResponseRedirect("..")
 
     def reset(self, request):
         """ do a reset and delete *all* recorded data """
-        start_time = time.time()
+        start_time = time.monotonic()
 
         count = ProcessInfo.objects.count()
         count += SiteStatistics.objects.count()
@@ -312,7 +313,7 @@ class BaseModelAdmin(admin.ModelAdmin):
         SiteStatistics.objects.all().delete()
 
         self.message_user(request, _("All recorded data (%(count)d entries) successfully deleted in %(time).1fms.") % {
-            "count": count, "time": ((time.time() - start_time) * 1000)
+            "count": count, "time": ((time.monotonic() - start_time) * 1000)
         })
         return HttpResponseRedirect("..")
 
@@ -366,10 +367,13 @@ class SiteStatisticsAdmin(BaseModelAdmin):
 
     def threads_info(self, obj):
         aggregate_data = self.aggregate_data[obj.site]
-        threads_min = aggregate_data["threads_min__min"]
-        threads_max = aggregate_data["threads_max__max"]
-        threads_avg = aggregate_data["threads_avg__avg"]
-        return "%i&nbsp;/&nbsp;%.2f&nbsp;/&nbsp;%i" % (threads_min, threads_avg, threads_max)
+        return mark_safe(
+            f'{aggregate_data["threads_min__min"]}'
+            f'&nbsp;/&nbsp;'
+            f'{aggregate_data["threads_max__max"]:.2f}'
+            f'&nbsp;/&nbsp;'
+            f'{aggregate_data["threads_avg__avg"]:.2f}'
+        )
     threads_info.short_description = _("Threads")
     threads_info.allow_tags = True
 
@@ -433,15 +437,26 @@ class ProcessInfoAdmin(BaseModelAdmin):
     alive2.admin_order_field = "alive"
 
     def threads_info(self, obj):
-        return "%i&nbsp;/&nbsp;%.2f&nbsp;/&nbsp;%i" % (obj.threads_min, obj.threads_avg, obj.threads_max)
+        return mark_safe(
+            f"{obj.threads_min}&nbsp;/&nbsp;{obj.threads_avg:.2f}&nbsp;/&nbsp;{obj.threads_max}"
+        )
     threads_info.short_description = _("Threads")
-    threads_info.allow_tags = True
+
+    def user_time_total2(self, obj):
+        return human_duration(obj.user_time_total)
+    user_time_total2.short_description = _("user time total")
+    user_time_total2.admin_order_field = "user_time_total"
+
+    def system_time_total2(self, obj):
+        return human_duration(obj.system_time_total)
+    system_time_total2.short_description = _("system time total")
+    system_time_total2.admin_order_field = "system_time_total"
 
     list_display = [
         "pid", "alive2", "site", "request_count", "exception_count", "db_query_count_avg",
         "response_time_avg2", "response_time_sum2", "threads_info",
 
-        "user_time_total", "system_time_total",
+        "user_time_total2", "system_time_total2",
 
         "memory_avg2", "vm_peak_avg2",
         "start_time2", "lastupdate_time2", "life_time"

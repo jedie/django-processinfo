@@ -123,8 +123,8 @@ class ProcessInfo(BaseModel):
         primary_key=True, db_index=True,
         help_text=_("process ID.")
     )
-    alive = models.NullBooleanField(
-        # null=True, blank=True,
+    alive = models.BooleanField(
+        null=True,
         help_text=_(
             "Is this process dead (==False)?"
             " *Important:* alive is never==True! If alive==None: State unknown!"

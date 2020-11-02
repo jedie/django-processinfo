@@ -135,7 +135,5 @@ LOGGING = {
     'loggers': {
         '': {'handlers': ['console'], 'level': 'DEBUG', 'propagate': False},
         'django': {'handlers': ['console'], 'level': 'INFO', 'propagate': False},
-        'axes': {'handlers': ['console'], 'level': 'WARNING', 'propagate': False},
-        'inventory': {'handlers': ['console'], 'level': 'DEBUG', 'propagate': False},
     },
 }

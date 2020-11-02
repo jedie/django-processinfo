@@ -43,10 +43,15 @@
                         {{ loadavg.0 }} / {{ loadavg.1 }} / {{ loadavg.2 }}
                     {% endif %}
                 </dd>
+            </dl>
+        </td>
+        <td>
+            <dl>
                 <dt>uptime</dt>
                 <dd>{{ updatetime }}</dd>
             </dl>
         </td>
+
     </tr>
 </table>
 
@@ -63,7 +68,7 @@
 			<dl>
 				<dt>{% trans "Non-paged memory (VmRSS)" %}</dt>
   				<dd>{{ memory_min_avg|filesizeformat }} / {{ memory_avg|filesizeformat }} / {{ memory_max_avg|filesizeformat }}</dd>
-  				
+
   				<dt>{% trans "Virtual memory peak size (VmPeak)" %}</dt>
   				<dd>{{ vm_peak_min_avg|filesizeformat }} / {{ vm_peak_avg|filesizeformat }} / {{ vm_peak_max_avg|filesizeformat }}</dd>
 			</dl>
@@ -72,13 +77,13 @@
 			<dl>
 				<dt>{% trans "Living processes (current/avg/max)" %}</dt>
   				<dd>{{ process_count_current }} / {{ process_count_avg|floatformat:1 }} / {{ process_count_max }}</dd>
-  				
+
 				<dt>{% trans "Processes lifetime" %}</dt>
   				<dd>{{ life_time_min }} / {{ life_time_avg }} / {{ life_time_max }}</dd>
-  				
+
 				<dt>{% trans "Threads (current/min/avg/max)" %}</dt>
   				<dd>{{ threads_current }} / {{ threads_min }} / {{ threads_avg|floatformat:1 }} / {{ threads_max }}</dd>
-  				
+
   				<dt>{% trans "Total created processes" %}</dt>
   				<dd>{{ process_spawn }}</dd>
 			</dl>
@@ -87,10 +92,10 @@
 			<dl>
 				<dt>{% trans "Total request count" %}</dt>
   				<dd>{{ request_count }}</dd>
-  				
+
 				<dt>{% trans "Total exceptions count" %}</dt>
   				<dd>{{ exception_count }}</dd>
-  				
+
 				<dt>{% trans "Response time" %}</dt>
   				<dd>{{ response_time_min_avg }} / {{ response_time_avg }} / {{ response_time_max_avg }}</dd>
 			</dl>
@@ -99,10 +104,10 @@
 			<dl>
 				<dt>{% trans "Total processor time (user/system/total)" %}</dt>
   				<dd>{{ user_time_total }} / {{ system_time_total }} / {{ processor_time }}</dd>
-  				
+
 				<dt>{% trans "Total response time" %}</dt>
   				<dd>{{ response_time_sum }}</dd>
-  				
+
 				<dt>{% trans "Loads (response time in relation to processor time)" %}</dt>
   				<dd>{{ loads|floatformat:1 }}% <small>{% trans "(Higher percent is better)" %}</small></dd>
 			</dl>
@@ -113,7 +118,7 @@
 	<li>Statistics started {{ first_start_time }} (since {{ first_start_time|timesince }})</li>
 	<li>groups of three values are: <strong>mimimum / average / maximum</strong> values</li>
 	<li>{% trans "Note: All values are approximated, because statistics only collected if a request was handled completely." %}</li>
-	<li><a href="https://github.com/jedie/django-processinfo">django-processinfo v{{ version_string }}</a></li>
+	<li><a href="https://github.com/jedie/django-processinfo">django-processinfo v{{ processinfo_version_string }}</a></li>
 </ul>
 <hr />
 {{ block.super }}
@@ -128,22 +133,22 @@
             <dl>
                 <dt>{% trans "uname" %}</dt>
                 <dd>{{ os_uname }}</dd>
-                
+
                 <dt>{% trans "Domain name" %}</dt>
                 <dd>{{ domain_name }}</dd>
-                
+
                 <dt>{% trans "IP Adresses" %}</dt>
                 <dd>{{ ip_addresses }}</dd>
             </dl>
         </td>
         <td>
-            <dl>               
+            <dl>
                 <dt>{% trans "Python version" %}</dt>
                 <dd>{{ python_version }}</dd>
-                
+
                 <dt>sys.prefix</dt>
                 <dd>{{ sys_prefix }}</dd>
-                
+
                 <dt>script filename</dt>
                 <dd>{{ script_filename }}</dd>
 
