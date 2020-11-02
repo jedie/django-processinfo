@@ -291,20 +291,20 @@ class BaseModelAdmin(admin.ModelAdmin):
 
     def remove_dead_entries(self, request):
         """ remove all dead ProcessInfo entries """
-        start_time = time.time()
+        start_time = time.monotonic()
 
         living_pids, dead_pids = ProcessInfo.objects.get_alive_and_dead()
 
         ProcessInfo.objects.filter(pid__in=dead_pids).delete()
 
         self.message_user(request, _("Successfully deleted %(count)d dead entries in %(time).1fms.") % {
-            "count": len(dead_pids), "time": ((time.time() - start_time) * 1000)
+            "count": len(dead_pids), "time": ((time.monotonic() - start_time) * 1000)
         })
         return HttpResponseRedirect("..")
 
     def reset(self, request):
         """ do a reset and delete *all* recorded data """
-        start_time = time.time()
+        start_time = time.monotonic()
 
         count = ProcessInfo.objects.count()
         count += SiteStatistics.objects.count()
@@ -313,7 +313,7 @@ class BaseModelAdmin(admin.ModelAdmin):
         SiteStatistics.objects.all().delete()
 
         self.message_user(request, _("All recorded data (%(count)d entries) successfully deleted in %(time).1fms.") % {
-            "count": count, "time": ((time.time() - start_time) * 1000)
+            "count": count, "time": ((time.monotonic() - start_time) * 1000)
         })
         return HttpResponseRedirect("..")
 
