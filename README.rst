@@ -199,9 +199,13 @@ Django compatibility
 history
 -------
 
-* *dev* - `compare v1.0.1...master <https://github.com/jedie/django-processinfo/compare/v1.0.1...master>`_ 
+* *dev* - `compare v1.0.2...master <https://github.com/jedie/django-processinfo/compare/v1.0.2...master>`_ 
 
     * TBC
+
+* v1.0.2 - 09.12.2020 - `compare v1.0.1...v1.0.2 <https://github.com/jedie/django-processinfo/compare/v1.0.1...v1.0.2>`_ 
+
+    * Bugfix "DataError: smallint out of range" on bigger PID numbers
 
 * v1.0.1 - 2.11.2020 - `compare v1.0.0...v1.0.1 <https://github.com/jedie/django-processinfo/compare/v1.0.0...v1.0.1>`_ 
 
@@ -344,4 +348,4 @@ Come into the conversation, besides the github communication features:
 
 ------------
 
-``Note: this file is generated from README.creole 2020-11-02 09:07:54 with "python-creole"``
+``Note: this file is generated from README.creole 2020-12-09 13:12:02 with "python-creole"``
