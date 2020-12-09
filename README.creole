@@ -156,8 +156,10 @@ You must also setup a test user, call this:
 == history ==
 
 
-* *dev* - [[https://github.com/jedie/django-processinfo/compare/v1.0.1...master|compare v1.0.1...master]]
+* *dev* - [[https://github.com/jedie/django-processinfo/compare/v1.0.2...master|compare v1.0.2...master]]
 ** TBC
+* v1.0.2 - 09.12.2020 - [[https://github.com/jedie/django-processinfo/compare/v1.0.1...v1.0.2|compare v1.0.1...v1.0.2]]
+** Bugfix "DataError: smallint out of range" on bigger PID numbers
 * v1.0.1 - 2.11.2020 - [[https://github.com/jedie/django-processinfo/compare/v1.0.0...v1.0.1|compare v1.0.0...v1.0.1]]
 ** Bugfix injected footer
 ** Fix/cleanup change list

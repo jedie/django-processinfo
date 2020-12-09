@@ -119,7 +119,7 @@ class ProcessInfo(BaseModel):
     """
     objects = ProcessInfoManager()
 
-    pid = models.SmallIntegerField(
+    pid = models.PositiveIntegerField(
         primary_key=True, db_index=True,
         help_text=_("process ID.")
     )
