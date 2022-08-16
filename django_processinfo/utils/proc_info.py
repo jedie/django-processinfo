@@ -41,7 +41,7 @@ def process_information(pid=None):
     result = []
     with open(path) as f:
         for line in f:
-            key, values = [i.strip() for i in line.split(":", 1)]
+            key, values = (i.strip() for i in line.split(":", 1))
             if "\t" in values:
                 values2 = values.split("\t")
             else:
@@ -92,7 +92,7 @@ def meminfo():
     result = []
     with open("/proc/meminfo") as f:
         for line in f:
-            key, values = [i.strip() for i in line.split(":", 1)]
+            key, values = (i.strip() for i in line.split(":", 1))
             values2 = values.split(" ")
             length = len(values2)
             if length == 1:
