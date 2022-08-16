@@ -13,7 +13,7 @@ import sys
 import time
 
 from django.conf import settings
-from django.conf.urls import url
+from django.urls import path
 from django.contrib import admin
 from django.db.models.aggregates import Avg, Max, Min, Sum
 from django.http import HttpResponseRedirect
@@ -324,8 +324,8 @@ class BaseModelAdmin(admin.ModelAdmin):
     def get_urls(self):
         urls = super().get_urls()
         my_urls = [
-            url(r'^remove_dead_entries/$', self.admin_site.admin_view(self.remove_dead_entries)),
-            url(r'^reset/$', self.admin_site.admin_view(self.reset)),
+            path('remove_dead_entries/', self.admin_site.admin_view(self.remove_dead_entries)),
+            path('reset/', self.admin_site.admin_view(self.reset)),
         ]
         return my_urls + urls
 
