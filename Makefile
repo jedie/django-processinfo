@@ -48,6 +48,8 @@ tox: check-poetry ## Run pytest via tox with all environments
 	poetry run tox
 
 pytest: check-poetry ## Run pytest
+	poetry run python --version
+	poetry run django-admin --version
 	poetry run pytest
 
 update-rst-readme: ## update README.rst from README.creole
