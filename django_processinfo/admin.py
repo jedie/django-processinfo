@@ -297,9 +297,11 @@ class BaseModelAdmin(admin.ModelAdmin):
 
         ProcessInfo.objects.filter(pid__in=dead_pids).delete()
 
-        self.message_user(request, _("Successfully deleted %(count)d dead entries in %(time).1fms.") % {
-            "count": len(dead_pids), "time": ((time.monotonic() - start_time) * 1000)
-        })
+        self.message_user(
+            request,
+            _("Successfully deleted %(count)d dead entries in %(time).1fms.")
+            % {"count": len(dead_pids), "time": ((time.monotonic() - start_time) * 1000)},
+        )
         return HttpResponseRedirect("..")
 
     def reset(self, request):
@@ -312,9 +314,11 @@ class BaseModelAdmin(admin.ModelAdmin):
         ProcessInfo.objects.all().delete()
         SiteStatistics.objects.all().delete()
 
-        self.message_user(request, _("All recorded data (%(count)d entries) successfully deleted in %(time).1fms.") % {
-            "count": count, "time": ((time.monotonic() - start_time) * 1000)
-        })
+        self.message_user(
+            request,
+            _("All recorded data (%(count)d entries) successfully deleted in %(time).1fms.")
+            % {"count": count, "time": ((time.monotonic() - start_time) * 1000)},
+        )
         return HttpResponseRedirect("..")
 
     def get_urls(self):
@@ -362,7 +366,13 @@ class SiteStatisticsAdmin(BaseModelAdmin):
 
     def process_count(self, obj):
         living_process_count = self.aggregate_data[obj.site]["living_process_count"]
-        return f"{living_process_count} / {round(obj.process_count_avg, 1):.1f} / {obj.process_count_max}"
+        return (
+            f"{living_process_count}"
+            f" / "
+            f"{round(obj.process_count_avg, 1):.1f}"
+            f" / "
+            f"{obj.process_count_max}"
+        )
     process_count.short_description = _("Living processes (current/avg/max)")
 
     def threads_info(self, obj):
@@ -462,7 +472,7 @@ class ProcessInfoAdmin(BaseModelAdmin):
         "start_time2", "lastupdate_time2", "life_time"
     ]
     if not settings.DEBUG:
-        del(list_display[list_display.index("db_query_count_avg")])
+        del list_display[list_display.index("db_query_count_avg")]
 
 
 admin.site.register(ProcessInfo, ProcessInfoAdmin)

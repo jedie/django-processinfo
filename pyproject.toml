@@ -18,6 +18,7 @@ python = ">=3.7,<4.0.0"
 Django = "*"
 
 [tool.poetry.dev-dependencies]
+bx_py_utils = "*"
 django-debug-toolbar = "*"  # http://django-debug-toolbar.readthedocs.io/en/stable/changes.html
 poetry-publish = "*"  # https://github.com/jedie/poetry-publish
 python-creole = "*"  # https://github.com/jedie/python-creole
@@ -29,6 +30,7 @@ pytest-cov = "*"
 pytest-django = "*"
 coveralls = "*"
 isort = "*"
+pytest-darker = "*"  # https://github.com/akaihola/pytest-darker
 flake8 = "*"
 flynt = "*"
 autopep8 = "*"
@@ -39,11 +41,86 @@ model_bakery = "*"  # https://github.com/model-bakers/model_bakery
 publish = "django_processinfo.publish:publish"
 update_rst_readme = "django_processinfo.publish:update_readme"
 
-[tool.autopep8]
-# https://github.com/hhatto/autopep8#pyprojecttoml
-max_line_length = 120
-exclude = "*/migrations/*"
 
 [build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
+
+
+[tool.darker]
+src = ['.']
+revision = "origin/master..."
+line_length = 100
+verbose = true
+skip_string_normalization = true
+diff = false
+check = false
+stdout = false
+isort = true
+lint = [
+    "flake8",
+]
+log_level = "INFO"
+
+
+[tool.isort]
+# https://pycqa.github.io/isort/docs/configuration/config_files/#pyprojecttoml-preferred-format
+atomic=true
+profile='black'
+line_length=100
+skip_glob=[".*", "*/htmlcov/*","*/migrations/*"]
+known_first_party=["django_processinfo","django_processinfo_tests"]
+lines_after_imports=2
+
+
+[tool.pytest.ini_options]
+# https://docs.pytest.org/en/latest/customize.html#pyproject-toml
+minversion = "6.0"
+DJANGO_SETTINGS_MODULE="django_processinfo_tests.django_project.settings"
+norecursedirs = ".* __pycache__ coverage* dist htmlcov"
+# sometimes helpfull "addopts" arguments:
+#    -vv
+#    --verbose
+#    --capture=no
+#    --trace-config
+#    --full-trace
+#    -p no:warnings
+addopts = """
+    --import-mode=importlib
+    --reuse-db
+    --nomigrations
+    --cov=.
+    --cov-report term-missing
+    --cov-report html
+    --cov-report xml
+    --no-cov-on-fail
+    --showlocals
+    --darker
+    --doctest-modules
+    --failed-first
+    --last-failed-no-failures all
+    --new-first
+    --maxfail 3
+"""
+
+
+[tool.tox]
+# https://tox.readthedocs.io/en/latest/example/basic.html#pyproject-toml-tox-legacy-ini
+legacy_tox_ini = """
+[tox]
+isolated_build = True
+envlist = py{38,39,310}-django{3.2,4.0,4.1}
+skip_missing_interpreters = True
+
+[testenv]
+passenv = *
+deps =
+    django3.2: django>=3.2,<3.3
+    django4.0: django>=4.0,<4.1
+    django4.1: django>=4.1,<4.2
+install_dev_deps=True
+commands =
+    python --version
+    django-admin --version
+    python -m pytest
+"""

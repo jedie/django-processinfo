@@ -43,13 +43,13 @@ def timesince2(d, now=None):
         * generates html code with both information
 
     >>> timesince2(datetime.datetime(2005, 7, 14, 0), datetime.datetime(2005, 7, 16, 12))
-    u'<span title="July 14, 2005, midnight" style="cursor:help;">2.5 days</span>'
+    '<span title="July 14, 2005, midnight" style="cursor:help;">2.5 days</span>'
 
     >>> timesince2(datetime.datetime(2005, 7, 14, 12, 30, 00), datetime.datetime(2005, 7, 14, 12, 30, 10))
-    u'<span title="July 14, 2005, 12:30 p.m." style="cursor:help;">10.0 sec</span>'
+    '<span title="July 14, 2005, 12:30 p.m." style="cursor:help;">10.0 sec</span>'
 
     >>> timesince2(datetime.datetime(2005, 7, 14, 12, 30, 00), datetime.datetime(2005, 7, 14, 12, 30, 00, 1200))
-    u'<span title="July 14, 2005, 12:30 p.m." style="cursor:help;">1.2 ms</span>'
+    '<span title="July 14, 2005, 12:30 p.m." style="cursor:help;">1.2 ms</span>'
     """
     if not isinstance(d, datetime.datetime):
         # Convert datetime.date to datetime.datetime for comparison.
