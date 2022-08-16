@@ -1,5 +1,13 @@
+import datetime
+import time
+from unittest import mock
+
+from bx_django_utils.test_utils.datetime import MockDatetimeGenerator
+from bx_django_utils.test_utils.html_assertion import HtmlAssertionMixin
+from bx_py_utils.test_utils.time import MockTimeMonotonicGenerator
 from django.contrib.auth.models import User
 from django.test import TestCase
+from django.utils import timezone
 from model_bakery import baker
 
 from django_processinfo.models import ProcessInfo, SiteStatistics
@@ -31,13 +39,15 @@ class AdminAnonymousTests(TestCase):
         assert response.endswith('%)</small></p></body>\n</html>\n')
 
 
-class ProcessinfoAdminTestCase(TestCase):
+class ProcessinfoAdminTestCase(HtmlAssertionMixin, TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.superuser = baker.make(
             User, is_staff=True, is_active=True, is_superuser=True
         )
 
+    @mock.patch.object(timezone, 'now', MockDatetimeGenerator(datetime.timedelta(minutes=1)))
+    @mock.patch.object(time, 'monotonic', MockTimeMonotonicGenerator())
     def test_sitestatistics(self):
         self.client.force_login(self.superuser)
 
@@ -47,18 +57,20 @@ class ProcessinfoAdminTestCase(TestCase):
         response = self.client.get('/admin/django_processinfo/sitestatistics/')
         self.assertTemplateUsed(response, 'admin/django_processinfo/change_list.html')
 
-        response = response.content.decode("utf-8")
-        self.assertInHTML(
-            '<title>Select Site statistics to change | Django site admin</title>',
-            response
+        self.assert_html_parts(
+            response,
+            parts=(
+                '<title>Select Site statistics to change | Django site admin</title>',
+                '<h2>System information</h2>',
+                '<dt>Living processes (current/avg/max)</dt>',
+                '<small>django-processinfo: 1000.0 ms of 1000.0 ms (100.0%)</small>',
+            ),
         )
-        self.assertInHTML('<h2>System information</h2>', response)
-        self.assertInHTML('<dt>Living processes (current/avg/max)</dt>', response)
-        assert 'django-processinfo:' in response
-
         assert SiteStatistics.objects.count() == 1
         assert ProcessInfo.objects.count() == 1
 
+    @mock.patch.object(timezone, 'now', MockDatetimeGenerator(datetime.timedelta(minutes=1)))
+    @mock.patch.object(time, 'monotonic', MockTimeMonotonicGenerator())
     def test_processinfo(self):
         self.client.force_login(self.superuser)
 
@@ -68,14 +80,14 @@ class ProcessinfoAdminTestCase(TestCase):
         response = self.client.get('/admin/django_processinfo/processinfo/')
         self.assertTemplateUsed(response, 'admin/django_processinfo/change_list.html')
 
-        response = response.content.decode("utf-8")
-        self.assertInHTML(
-            '<title>Select Process statistics to change | Django site admin</title>',
-            response
+        self.assert_html_parts(
+            response,
+            parts=(
+                '<title>Select Process statistics to change | Django site admin</title>',
+                '<h2>System information</h2>',
+                '<dt>Living processes (current/avg/max)</dt>',
+                '<small>django-processinfo: 1000.0 ms of 1000.0 ms (100.0%)</small>',
+            ),
         )
-        self.assertInHTML('<h2>System information</h2>', response)
-        self.assertInHTML('<dt>Living processes (current/avg/max)</dt>', response)
-        assert 'django-processinfo:' in response
-
         assert SiteStatistics.objects.count() == 1
         assert ProcessInfo.objects.count() == 1

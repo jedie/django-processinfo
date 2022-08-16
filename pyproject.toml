@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "django-processinfo"
-version = "1.0.2"
+version = "1.1.0"
 description = "Django application to collect information about the running server processes."
 authors = ["JensDiemer <git@jensdiemer.de>"]
 license = "GNU General Public License v3.0 or above"
@@ -18,8 +18,8 @@ python = ">=3.7,<4.0.0"
 Django = "*"
 
 [tool.poetry.dev-dependencies]
-bx_py_utils = "*"
-bx_django_utils = "*"
+bx_py_utils = "*"  # https://github.com/boxine/bx_py_utils
+bx_django_utils = "*"  # https://github.com/boxine/bx_django_utils
 django-debug-toolbar = "*"  # http://django-debug-toolbar.readthedocs.io/en/stable/changes.html
 poetry-publish = "*"  # https://github.com/jedie/poetry-publish
 python-creole = "*"  # https://github.com/jedie/python-creole
@@ -35,7 +35,6 @@ pytest-darker = "*"  # https://github.com/akaihola/pytest-darker
 flake8 = "*"
 flynt = "*"
 autopep8 = "*"
-pyupgrade = "*"
 model_bakery = "*"  # https://github.com/model-bakers/model_bakery
 
 [tool.poetry.scripts]
