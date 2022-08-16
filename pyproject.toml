@@ -19,6 +19,7 @@ Django = "*"
 
 [tool.poetry.dev-dependencies]
 bx_py_utils = "*"
+bx_django_utils = "*"
 django-debug-toolbar = "*"  # http://django-debug-toolbar.readthedocs.io/en/stable/changes.html
 poetry-publish = "*"  # https://github.com/jedie/poetry-publish
 python-creole = "*"  # https://github.com/jedie/python-creole
@@ -77,7 +78,7 @@ lines_after_imports=2
 # https://docs.pytest.org/en/latest/customize.html#pyproject-toml
 minversion = "6.0"
 DJANGO_SETTINGS_MODULE="django_processinfo_tests.django_project.settings"
-norecursedirs = ".* __pycache__ coverage* dist htmlcov"
+norecursedirs = ".* __pycache__ coverage* migrations dist htmlcov"
 # sometimes helpfull "addopts" arguments:
 #    -vv
 #    --verbose

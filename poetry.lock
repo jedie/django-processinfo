@@ -94,6 +94,19 @@ dev = ["mypy (==0.961)", "black (==22.3.0)", "wheel (==0.37.1)", "twine (==4.0.1
 css = ["tinycss2 (>=1.1.0,<1.2)"]
 
 [[package]]
+name = "bx-django-utils"
+version = "26"
+description = "Various Django utility functions"
+category = "dev"
+optional = false
+python-versions = ">=3.7,<4.0.0"
+
+[package.dependencies]
+bx_py_utils = ">=52"
+django = "*"
+python-stdnum = "*"
+
+[[package]]
 name = "bx-py-utils"
 version = "68"
 description = "Various Python utility functions"
@@ -652,6 +665,19 @@ python-versions = ">=3.6,<4.0.0"
 docutils = "*"
 
 [[package]]
+name = "python-stdnum"
+version = "1.17"
+description = "Python module to handle standardized numbers and codes"
+category = "dev"
+optional = false
+python-versions = "*"
+
+[package.extras]
+soap-fallback = ["pysimplesoap"]
+soap-alt = ["suds"]
+soap = ["zeep"]
+
+[[package]]
 name = "pytz"
 version = "2022.2.1"
 description = "World timezone definitions, modern and historical"
@@ -914,7 +940,7 @@ docs = ["jaraco.tidelift (>=1.4)", "rst.linker (>=1.9)", "jaraco.packaging (>=9)
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7,<4.0.0"
-content-hash = "bb8a953516b7d36a888319c4050168d50fc8f1db5934734ab418ba682d58807a"
+content-hash = "40388d98f59fda1842604a048a95e134111a0ff5d2963048fc0a4755dd8f600d"
 
 [metadata.files]
 asgiref = [
@@ -964,6 +990,10 @@ black = [
 bleach = [
     {file = "bleach-5.0.1-py3-none-any.whl", hash = "sha256:085f7f33c15bd408dd9b17a4ad77c577db66d76203e5984b1bd59baeee948b2a"},
     {file = "bleach-5.0.1.tar.gz", hash = "sha256:0d03255c47eb9bd2f26aa9bb7f2107732e7e8fe195ca2f64709fcf3b0a4a085c"},
+]
+bx-django-utils = [
+    {file = "bx_django_utils-26-py3-none-any.whl", hash = "sha256:c04776c4c6b275ddcadae79fd1578e6ae9ba92d8cf752a9ee4f2b70a22f4236e"},
+    {file = "bx_django_utils-26.tar.gz", hash = "sha256:19349d0a8fa165d87b4fd544efb61418f7d6c41cfabaa46d0153bb6d844262a1"},
 ]
 bx-py-utils = [
     {file = "bx_py_utils-68-py3-none-any.whl", hash = "sha256:00c3fbc9b5f48626a0a58141aaa90104349bac9723941c64f528f8742b0961db"},
@@ -1278,6 +1308,10 @@ pytest-randomly = [
 python-creole = [
     {file = "python-creole-1.4.10.tar.gz", hash = "sha256:6429aedc7cef578fe681d7781ad12dbea6ee54e03937b0e1b697e4cae5ff80bb"},
     {file = "python_creole-1.4.10-py3-none-any.whl", hash = "sha256:dc24325f4ba2af3e8d73ca2905e4665df932af0cfe0ec95d5790d55a7c5c10e2"},
+]
+python-stdnum = [
+    {file = "python-stdnum-1.17.tar.gz", hash = "sha256:374e2b5e13912ccdbf50b0b23fca2c3e0531174805c32d74e145f37756328340"},
+    {file = "python_stdnum-1.17-py2.py3-none-any.whl", hash = "sha256:a46e6cf9652807314d369b654b255c86a59f93d18be2834f3d567ed1a346c547"},
 ]
 pytz = [
     {file = "pytz-2022.2.1-py2.py3-none-any.whl", hash = "sha256:220f481bdafa09c3955dfbdddb7b57780e9a94f5127e35456a48589b9e0c0197"},
