@@ -147,17 +147,21 @@ You must also setup a test user, call this:
 
 == Django compatibility
 
-|= Version |= Python  |= Django
-| v0.9.0   | python 3 | django v2.2 LTS
-| v0.8.0   | python 3 | django v1.11 LTS
-| v0.7.0   | python 2 | django v1.5
-| v0.6.1   | python 2 | django v1.4
+|= Version |= Python          |= Django
+| >=v1.1.0 | 3.7,3.8,3.9,3.10 | 3.2,4.0,4.1
+| v0.9.0   | python 3         | django v2.2 LTS
+| v0.8.0   | python 3         | django v1.11 LTS
+| v0.7.0   | python 2         | django v1.5
+| v0.6.1   | python 2         | django v1.4
 
 == history ==
 
 
-* *dev* - [[https://github.com/jedie/django-processinfo/compare/v1.0.2...master|compare v1.0.2...master]]
+* *dev* - [[https://github.com/jedie/django-processinfo/compare/v1.1.0...master|compare v1.1.0...master]]
 ** TBC
+* [[https://github.com/jedie/django-processinfo/compare/v1.0.2...v1.1.0|v1.1.0 - 16.08.2022]]
+** Test against Django 3.2, 4.0 and 4.1 with Python 3.7, 3.8, 3.9 and 3.10
+** Modernize project setup
 * v1.0.2 - 09.12.2020 - [[https://github.com/jedie/django-processinfo/compare/v1.0.1...v1.0.2|compare v1.0.1...v1.0.2]]
 ** Bugfix "DataError: smallint out of range" on bigger PID numbers
 * v1.0.1 - 2.11.2020 - [[https://github.com/jedie/django-processinfo/compare/v1.0.0...v1.0.1|compare v1.0.0...v1.0.1]]

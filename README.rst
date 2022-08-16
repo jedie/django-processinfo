@@ -183,25 +183,33 @@ You must also setup a test user, call this:
 Django compatibility
 --------------------
 
-+---------+----------+------------------+
-| Version | Python   | Django           |
-+=========+==========+==================+
-| v0.9.0  | python 3 | django v2.2 LTS  |
-+---------+----------+------------------+
-| v0.8.0  | python 3 | django v1.11 LTS |
-+---------+----------+------------------+
-| v0.7.0  | python 2 | django v1.5      |
-+---------+----------+------------------+
-| v0.6.1  | python 2 | django v1.4      |
-+---------+----------+------------------+
++----------+------------------+------------------+
+| Version  | Python           | Django           |
++==========+==================+==================+
+| >=v1.1.0 | 3.7,3.8,3.9,3.10 | 3.2,4.0,4.1      |
++----------+------------------+------------------+
+| v0.9.0   | python 3         | django v2.2 LTS  |
++----------+------------------+------------------+
+| v0.8.0   | python 3         | django v1.11 LTS |
++----------+------------------+------------------+
+| v0.7.0   | python 2         | django v1.5      |
++----------+------------------+------------------+
+| v0.6.1   | python 2         | django v1.4      |
++----------+------------------+------------------+
 
 -------
 history
 -------
 
-* *dev* - `compare v1.0.2...master <https://github.com/jedie/django-processinfo/compare/v1.0.2...master>`_ 
+* *dev* - `compare v1.1.0...master <https://github.com/jedie/django-processinfo/compare/v1.1.0...master>`_ 
 
     * TBC
+
+* `v1.1.0 - 16.08.2022 <https://github.com/jedie/django-processinfo/compare/v1.0.2...v1.1.0>`_ 
+
+    * Test against Django 3.2, 4.0 and 4.1 with Python 3.7, 3.8, 3.9 and 3.10
+
+    * Modernize project setup
 
 * v1.0.2 - 09.12.2020 - `compare v1.0.1...v1.0.2 <https://github.com/jedie/django-processinfo/compare/v1.0.1...v1.0.2>`_ 
 
@@ -348,4 +356,4 @@ Come into the conversation, besides the github communication features:
 
 ------------
 
-``Note: this file is generated from README.creole 2020-12-09 13:12:02 with "python-creole"``
+``Note: this file is generated from README.creole 2022-08-16 18:56:10 with "python-creole"``
