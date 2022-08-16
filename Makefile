@@ -57,6 +57,8 @@ publish: ## Release new version to PyPi
 	poetry run publish
 
 start-dev-server: ## Start Django dev. server with the test project
-	DJANGO_SETTINGS_MODULE=django_processinfo_tests.django_project.settings poetry run dev_server
+	./manage.sh makemigrations
+	./manage.sh migrate
+	./manage.sh runserver
 
 .PHONY: help install lint fix test publish
