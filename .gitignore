@@ -1,20 +1,18 @@
-local_settings.py
+.*
+
+!.github
+!.editorconfig
+!.flake8
+
+/.git
 *.py[co]
-*.log
 *~
 *.egg-info
 /dist
 /build
-*.db3
-/.settings
-/.idea
+*.log
 
-/static/
-/poetry.lock
-
-/.tox/
-
-coverage.xml
-.coverage
 /htmlcov/
+coverage.xml
 
+/static

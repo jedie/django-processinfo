@@ -12,19 +12,21 @@ import socket
 import sys
 import time
 
+from bx_django_utils.humanize.time import human_timedelta
+from bx_django_utils.templatetags.humanize_time import human_duration
 from django.conf import settings
-from django.conf.urls import url
 from django.contrib import admin
 from django.db.models.aggregates import Avg, Max, Min, Sum
 from django.http import HttpResponseRedirect
 from django.template.defaultfilters import filesizeformat
+from django.urls import path
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 
 from django_processinfo import __version__
 from django_processinfo.models import ProcessInfo, SiteStatistics
 from django_processinfo.utils.average import average
-from django_processinfo.utils.human_time import datetime2float, human_duration, timesince2
+from django_processinfo.utils.human_time import datetime2float
 from django_processinfo.utils.proc_info import meminfo, process_information, uptime_infomation
 
 
@@ -52,7 +54,7 @@ STATIC_INFORMATIONS = {
 
 class BaseModelAdmin(admin.ModelAdmin):
     def start_time2(self, obj):
-        return timesince2(obj.start_time)
+        return human_duration(obj.start_time)
     start_time2.short_description = _("start since")
     start_time2.admin_order_field = "start_time"
     start_time2.allow_tags = True
@@ -248,21 +250,16 @@ class BaseModelAdmin(admin.ModelAdmin):
             "threads_avg": threads_avg,
             "threads_max": threads_max,
 
-            "response_time_min_avg": human_duration(response_time_min_avg),
-            "response_time_max_avg": human_duration(response_time_max_avg),
-            "response_time_avg": human_duration(response_time_avg),
-            "response_time_sum": human_duration(response_time_sum),
-
-            "user_time_total": human_duration(user_time_total),  # total user mode time
-            "system_time_total": human_duration(system_time_total),  # total system mode time
-            "processor_time": human_duration(user_time_total + system_time_total),
+            "user_time_total": human_timedelta(user_time_total),  # total user mode time
+            "system_time_total": human_timedelta(system_time_total),  # total system mode time
+            "processor_time": human_timedelta(user_time_total + system_time_total),
             "loads": loads,
 
             "processinfo_version_string": __version__,
 
-            "life_time_min": human_duration(life_time_min),
-            "life_time_max": human_duration(life_time_max),
-            "life_time_avg": human_duration(life_time_avg),
+            "life_time_min": human_timedelta(life_time_min),
+            "life_time_max": human_timedelta(life_time_max),
+            "life_time_avg": human_timedelta(life_time_avg),
 
             "mem_used": mem_used,
             "mem_perc": float(mem_used) / meminfo_dict["MemTotal"] * 100,
@@ -272,7 +269,7 @@ class BaseModelAdmin(admin.ModelAdmin):
             "swap_perc": swap_perc,
             "swap_total": swap_total,
 
-            "updatetime": timesince2(updatetime),
+            "updatetime": human_duration(updatetime),
 
             "script_filename": self.request.META.get("SCRIPT_FILENAME", "???"),
             "server_info": (
@@ -281,6 +278,22 @@ class BaseModelAdmin(admin.ModelAdmin):
             )
         }
         extra_context.update(STATIC_INFORMATIONS)
+
+        if response_time_min_avg is not None:
+            extra_context.update(
+                {
+                    "response_time_min_avg": human_timedelta(response_time_min_avg),
+                    "response_time_max_avg": human_timedelta(response_time_max_avg),
+                }
+            )
+
+        if response_time_avg is not None:
+            extra_context.update(
+                {
+                    "response_time_avg": human_timedelta(response_time_avg),
+                    "response_time_sum": human_timedelta(response_time_sum),
+                }
+            )
 
         try:
             extra_context["loadavg"] = os.getloadavg()
@@ -297,9 +310,11 @@ class BaseModelAdmin(admin.ModelAdmin):
 
         ProcessInfo.objects.filter(pid__in=dead_pids).delete()
 
-        self.message_user(request, _("Successfully deleted %(count)d dead entries in %(time).1fms.") % {
-            "count": len(dead_pids), "time": ((time.monotonic() - start_time) * 1000)
-        })
+        self.message_user(
+            request,
+            _("Successfully deleted %(count)d dead entries in %(time).1fms.")
+            % {"count": len(dead_pids), "time": ((time.monotonic() - start_time) * 1000)},
+        )
         return HttpResponseRedirect("..")
 
     def reset(self, request):
@@ -312,16 +327,18 @@ class BaseModelAdmin(admin.ModelAdmin):
         ProcessInfo.objects.all().delete()
         SiteStatistics.objects.all().delete()
 
-        self.message_user(request, _("All recorded data (%(count)d entries) successfully deleted in %(time).1fms.") % {
-            "count": count, "time": ((time.monotonic() - start_time) * 1000)
-        })
+        self.message_user(
+            request,
+            _("All recorded data (%(count)d entries) successfully deleted in %(time).1fms.")
+            % {"count": count, "time": ((time.monotonic() - start_time) * 1000)},
+        )
         return HttpResponseRedirect("..")
 
     def get_urls(self):
         urls = super().get_urls()
         my_urls = [
-            url(r'^remove_dead_entries/$', self.admin_site.admin_view(self.remove_dead_entries)),
-            url(r'^reset/$', self.admin_site.admin_view(self.reset)),
+            path('remove_dead_entries/', self.admin_site.admin_view(self.remove_dead_entries)),
+            path('reset/', self.admin_site.admin_view(self.reset)),
         ]
         return my_urls + urls
 
@@ -347,7 +364,7 @@ class SiteStatisticsAdmin(BaseModelAdmin):
     def response_time_avg(self, obj):
         aggregate_data = self.aggregate_data[obj.site]
         response_time_avg = aggregate_data["response_time_avg__avg"] or 0
-        return human_duration(response_time_avg)
+        return human_timedelta(response_time_avg)
     response_time_avg.short_description = _("Avg response time")
 
     def request_count(self, obj):
@@ -362,7 +379,13 @@ class SiteStatisticsAdmin(BaseModelAdmin):
 
     def process_count(self, obj):
         living_process_count = self.aggregate_data[obj.site]["living_process_count"]
-        return f"{living_process_count} / {round(obj.process_count_avg, 1):.1f} / {obj.process_count_max}"
+        return (
+            f"{living_process_count}"
+            f" / "
+            f"{round(obj.process_count_avg, 1):.1f}"
+            f" / "
+            f"{obj.process_count_max}"
+        )
     process_count.short_description = _("Living processes (current/avg/max)")
 
     def threads_info(self, obj):
@@ -393,23 +416,23 @@ admin.site.register(SiteStatistics, SiteStatisticsAdmin)
 
 class ProcessInfoAdmin(BaseModelAdmin):
     def lastupdate_time2(self, obj):
-        return timesince2(obj.lastupdate_time)
+        return human_duration(obj.lastupdate_time)
     lastupdate_time2.short_description = _("last update")
     lastupdate_time2.admin_order_field = "lastupdate_time"
     lastupdate_time2.allow_tags = True
 
     def life_time(self, obj):
-        return timesince2(obj.start_time, obj.lastupdate_time)
+        return human_duration(obj.start_time, obj.lastupdate_time)
     life_time.short_description = _("life time")
     life_time.allow_tags = True
 
     def response_time_avg2(self, obj):
-        return human_duration(obj.response_time_avg)
+        return human_timedelta(obj.response_time_avg)
     response_time_avg2.short_description = _("Avg response time")
     response_time_avg2.admin_order_field = "response_time_avg"
 
     def response_time_sum2(self, obj):
-        return human_duration(obj.response_time_sum)
+        return human_timedelta(obj.response_time_sum)
     response_time_sum2.short_description = _("Total response time")
     response_time_sum2.admin_order_field = "response_time_sum"
 
@@ -443,12 +466,12 @@ class ProcessInfoAdmin(BaseModelAdmin):
     threads_info.short_description = _("Threads")
 
     def user_time_total2(self, obj):
-        return human_duration(obj.user_time_total)
+        return human_timedelta(obj.user_time_total)
     user_time_total2.short_description = _("user time total")
     user_time_total2.admin_order_field = "user_time_total"
 
     def system_time_total2(self, obj):
-        return human_duration(obj.system_time_total)
+        return human_timedelta(obj.system_time_total)
     system_time_total2.short_description = _("system time total")
     system_time_total2.admin_order_field = "system_time_total"
 
@@ -462,7 +485,7 @@ class ProcessInfoAdmin(BaseModelAdmin):
         "start_time2", "lastupdate_time2", "life_time"
     ]
     if not settings.DEBUG:
-        del(list_display[list_display.index("db_query_count_avg")])
+        del list_display[list_display.index("db_query_count_avg")]
 
 
 admin.site.register(ProcessInfo, ProcessInfoAdmin)
